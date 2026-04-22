@@ -5,6 +5,7 @@ import { Charity } from './charity_type';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { MapPin, Mail, Phone, CheckCircle, ExternalLink } from 'lucide-react';
+import { Footer } from '@/components/Footer';
 
 export default function CharitiesPage() {
   // Only show active charities
@@ -161,6 +162,7 @@ export default function CharitiesPage() {
           </div>
         </div>
       </div>
+       <Footer />
     </>
   );
 }

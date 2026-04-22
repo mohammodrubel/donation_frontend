@@ -30,6 +30,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function CharityDetailsPage() {
   const params = useParams();
@@ -264,7 +265,7 @@ export default function CharityDetailsPage() {
             )}
           </div>
         </div>
-
+             <Footer />
         {/* Support Modal - Full width */}
         <Dialog open={isSupportModalOpen} onOpenChange={setIsSupportModalOpen}>
           <DialogContent className="w-[95vw] max-w-[70vw] md:w-[90vw] md:max-w-[90vw] lg:w-[85vw] lg:max-w-[85vw] xl:w-[80vw] xl:max-w-[80vw] max-h-[90vh] overflow-y-auto">
