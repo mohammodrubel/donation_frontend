@@ -8,6 +8,7 @@ import { HowItWorksSection } from './HowItWorksSection';
 import { TestimonialsSection } from './TestimonialsSection';
 import { PartnersSection } from './PartnersSection';
 import { FinalCTASection } from './FinalCTASection';
+import CharitySection from './charity';
 
 
 export function HomePage() {
@@ -18,6 +19,7 @@ export function HomePage() {
       <FeaturedCampaigns campaigns={campaigns} categories={campaignCategories} />
       <HowItWorksSection steps={howItWorks} />
       <TestimonialsSection testimonials={testimonials} />
+      <CharitySection/>
       <PartnersSection partners={partners} />
       <FinalCTASection />
     </main>

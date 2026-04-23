@@ -1,31 +1,14 @@
 
 import Link from 'next/link';
-import { demoCharities } from './data';
-import { Charity } from './charity_type';
-import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { MapPin, Mail, Phone, CheckCircle, ExternalLink } from 'lucide-react';
-import { Footer } from '@/components/Footer';
+import { demoCharities } from '@/app/charity/data';
+import { Charity } from '@/app/charity/charity_type';
 
-export default function CharitiesPage() {
-  // Only show active charities
-  const activeCharities = demoCharities.filter(c => c.active);
-
-  if (activeCharities.length === 0) {
-    return (
-      <>
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h2 className="text-2xl font-semibold text-gray-600">No active charities at the moment</h2>
-          <p className="text-gray-500 mt-2">Please check back later.</p>
-        </div>
-      </>
-    );
-  }
-
+function CharitySection() {
+  
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="container mx-auto px-4 py-12">
           {/* Hero Section */}
@@ -40,7 +23,7 @@ export default function CharitiesPage() {
 
           {/* Charities Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {activeCharities.map((charity: Charity) => (
+            {demoCharities?.slice(0,3).map((charity: Charity) => (
               <div
                 key={charity.id}
                 className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
@@ -149,9 +132,24 @@ export default function CharitiesPage() {
               </div>
             ))}
           </div>
+
+          {/* Call to Action Section */}
+          <div className="mt-16 text-center">
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8 max-w-3xl mx-auto">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Want to make a difference?</h3>
+              <p className="text-gray-600 mb-4">Every contribution, big or small, helps us create lasting change.</p>
+              <Link href="/charity">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8">
+                Get All Charity
+              </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-       <Footer />
     </>
   );
 }
+
+
+export default CharitySection
