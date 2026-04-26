@@ -117,7 +117,7 @@ export function FeaturedCampaigns({ campaigns, categories }: FeaturedCampaignsPr
         </div>
 
         <div className="mt-12 text-center">
-          <Button asChild size="lg" variant="outline" className="rounded-lg px-8">
+          <Button asChild size="lg" className="rounded-lg px-8">
             <Link href="/campaigns" className="flex items-center gap-2">
               View All {campaigns.length} Campaigns <ArrowRight className="w-4 h-4" />
             </Link>

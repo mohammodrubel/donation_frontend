@@ -16,21 +16,24 @@ export interface Campaign {
   updates: Array<{ date: string; message: string }>;
   recentDonors: Array<{ name: string; amount: number; date: string; avatar: string }>;
   tags: string[];
+  acceptedItems?: DonatableItem[];   // what items can be donated for this campaign
 }
+
 
 export interface ItemDonation {
   id: string;
-  itemName: string;
-  category: 'clothes' | 'food' | 'books' | 'furniture' | 'medicine' | 'electronics';
+  campaignId: string;
+  donorName: string;
+  donorEmail?: string;
+  itemName: string;               // from acceptedItems or custom
   quantity: number;
   condition: 'new' | 'used' | 'excellent' | 'fair';
-  description: string;
+  description?: string;
   pickupAddress: string;
   preferredDate: string;
   preferredTime: string;
-  photos: string[];
+  photos: string[];               // array of image URLs (or base64 for demo)
   status: 'pending' | 'accepted' | 'scheduled' | 'collected' | 'delivered';
-  contactName: string;
   contactPhone: string;
   submittedAt: string;
 }
@@ -47,7 +50,67 @@ export interface MoneyDonation {
   receipt: boolean;
   anonymous: boolean;
 }
-
+export const mockItemDonations: ItemDonation[] = [
+  {
+    id: 'idon1',
+    campaignId: '1',
+    donorName: 'Rasheda Begum',
+    donorEmail: 'rasheda@example.com',
+    itemName: 'Medical Equipment (BP monitor)',
+    quantity: 1,
+    condition: 'excellent',
+    description: 'Brand new digital BP monitor',
+    pickupAddress: '23/A Dhanmondi, Dhaka',
+    preferredDate: '2024-04-10',
+    preferredTime: '10:00 AM - 12:00 PM',
+    photos: [
+      'https://images.unsplash.com/photo-1584515933487-779824d29309?w=200&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=200&h=200&fit=crop',
+    ],
+    status: 'accepted',
+    contactPhone: '01712xxxxxx',
+    submittedAt: '2024-03-28',
+  },
+  {
+    id: 'idon2',
+    campaignId: '3',
+    donorName: 'Mohammad Ali',
+    donorEmail: 'ali@example.com',
+    itemName: 'Dry Food Pack',
+    quantity: 10,
+    condition: 'new',
+    description: '10 packs of rice, lentils, oil',
+    pickupAddress: 'Gulshan 2, Dhaka',
+    preferredDate: '2024-04-05',
+    preferredTime: '2:00 PM - 4:00 PM',
+    photos: [
+      'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=200&h=200&fit=crop',
+    ],
+    status: 'scheduled',
+    contactPhone: '01822xxxxxx',
+    submittedAt: '2024-03-30',
+  },
+  {
+    id: 'idon3',
+    campaignId: '5',
+    donorName: 'Food Lovers Club',
+    donorEmail: 'club@example.com',
+    itemName: 'Rice (5kg bag)',
+    quantity: 20,
+    condition: 'new',
+    description: '20 bags of premium rice',
+    pickupAddress: 'Uttara, Sector 10, Dhaka',
+    preferredDate: '2024-04-12',
+    preferredTime: '9:00 AM - 11:00 AM',
+    photos: [
+      'https://images.pexels.com/photos/4110250/pexels-photo-4110250.jpeg?w=200',
+      'https://images.pexels.com/photos/4110255/pexels-photo-4110255.jpeg?w=200',
+    ],
+    status: 'pending',
+    contactPhone: '01933xxxxxx',
+    submittedAt: '2024-04-01',
+  },
+];
 // Campaign mock data
 export const campaigns: Campaign[] = [
   {
@@ -75,6 +138,11 @@ export const campaigns: Campaign[] = [
       { name: 'Ahmed Hassan', amount: 100000, date: '2024-03-24', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2' },
       { name: 'Fatima Begum', amount: 25000, date: '2024-03-23', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3' },
     ],
+    acceptedItems: [
+      { id: 'item1', name: 'Medical Equipment (e.g., BP monitor, wheelchair)', description: 'New or gently used medical devices', category: 'medical' },
+      { id: 'item2', name: 'Prescribed Medicines', description: 'Unopened, not expired', category: 'medical' },
+      { id: 'item3', name: 'Blood Donation (at hospital)', description: 'Contact coordinator for blood group requirements', category: 'medical', unit: 'bag' },
+    ],
   },
   {
     id: '2',
@@ -85,7 +153,7 @@ export const campaigns: Campaign[] = [
     goalAmount: 1500000,
     collectedAmount: 890000,
     donors: 156,
-    image: 'https://images.pexels.com/photos/9090747/pexels-photo-9090747.jpeg?_gl=1*1hfm9ps*_ga*MTc5MjI4Mjg5OS4xNzY4NTgzNTg5*_ga_8JE65Q40S6*czE3NzY2ODY1NzkkbzYkZzEkdDE3NzY2ODY2MjAkajE5JGwwJGgw',
+    image: 'https://images.pexels.com/photos/9090747/pexels-photo-9090747.jpeg',
     creatorName: 'Dr. Mohammad Hasan',
     creatorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=4',
     status: 'verified',
@@ -100,6 +168,11 @@ export const campaigns: Campaign[] = [
       { name: 'Raina Dutta', amount: 75000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=5' },
       { name: 'Tech Founders Network', amount: 200000, date: '2024-03-20', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=6' },
       { name: 'Zainab Ali', amount: 50000, date: '2024-03-18', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=7' },
+    ],
+    acceptedItems: [
+      { id: 'item4', name: 'Children Story Books', description: 'Bangla or English, for ages 5-12', category: 'books' },
+      { id: 'item5', name: 'School Bags & Stationery', description: 'Notebooks, pens, pencils', category: 'other' },
+      { id: 'item6', name: 'Benches & Desks', description: 'Wooden school furniture', category: 'furniture' },
     ],
   },
   {
@@ -126,6 +199,11 @@ export const campaigns: Campaign[] = [
       { name: 'Corporate Charity Fund', amount: 500000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=9' },
       { name: 'Individual donors', amount: 150000, date: '2024-03-24', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10' },
     ],
+    acceptedItems: [
+      { id: 'item7', name: 'Dry Food Pack (Rice, Lentils, Oil)', description: '5kg rice, 2kg lentil, 1L oil', category: 'food', unit: 'pack' },
+      { id: 'item8', name: 'Saline & Water Purification Tablets', description: 'Essential for clean drinking water', category: 'medical' },
+      { id: 'item9', name: 'New/Like-New Blankets', description: 'For night time shelter', category: 'clothes' },
+    ],
   },
   {
     id: '4',
@@ -136,19 +214,22 @@ export const campaigns: Campaign[] = [
     goalAmount: 500000,
     collectedAmount: 385000,
     donors: 89,
-    image: 'https://images.pexels.com/photos/7978513/pexels-photo-7978513.jpeg?_gl=1*10cd601*_ga*MTc5MjI4Mjg5OS4xNzY4NTgzNTg5*_ga_8JE65Q40S6*czE3NzY2ODg5ODkkbzckZzEkdDE3NzY2ODkxMDYkajMzJGwwJGgw',
+    image: 'https://images.pexels.com/photos/7978513/pexels-photo-7978513.jpeg',
     creatorName: 'Community Support',
     creatorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11',
     status: 'active',
     createdAt: '2024-02-20',
     endDate: '2024-08-20',
     tags: ['family', 'women', 'education'],
-    updates: [
-      { date: '2024-03-20', message: 'Children enrolled in school!' },
-    ],
+    updates: [{ date: '2024-03-20', message: 'Children enrolled in school!' }],
     recentDonors: [
       { name: 'Compassionate Hearts', amount: 100000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12' },
       { name: 'Amina Sheikh', amount: 50000, date: '2024-03-22', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=13' },
+    ],
+    acceptedItems: [
+      { id: 'item10', name: 'Children\'s Winter Clothes', description: 'Sizes 6-12 years', category: 'clothes' },
+      { id: 'item11', name: 'Groceries (Rice, Flour, Oil)', description: 'Family staple pack', category: 'food' },
+      { id: 'item12', name: 'School Uniform & Books', description: 'For three children', category: 'education' },
     ],
   },
   {
@@ -176,6 +257,11 @@ export const campaigns: Campaign[] = [
       { name: 'Hassan Ali', amount: 25000, date: '2024-03-24', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=16' },
       { name: 'Ifrah Khan', amount: 35000, date: '2024-03-23', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=17' },
     ],
+    acceptedItems: [
+      { id: 'item13', name: 'Rice (5kg bag)', description: 'Fortified rice preferred', category: 'food', unit: 'bag' },
+      { id: 'item14', name: 'Lentils (2kg pack)', description: 'Masoor dal', category: 'food' },
+      { id: 'item15', name: 'Cooking Oil (5L)', description: 'Soybean or palm oil', category: 'food' },
+    ],
   },
   {
     id: '6',
@@ -186,23 +272,25 @@ export const campaigns: Campaign[] = [
     goalAmount: 750000,
     collectedAmount: 620000,
     donors: 178,
-    image: 'https://images.pexels.com/photos/33127869/pexels-photo-33127869.jpeg?_gl=1*i0bful*_ga*MTc5MjI4Mjg5OS4xNzY4NTgzNTg5*_ga_8JE65Q40S6*czE3NzY2ODg5ODkkbzckZzEkdDE3NzY2ODkwMTckajMyJGwwJGgw',
+    image: 'https://images.pexels.com/photos/33127869/pexels-photo-33127869.jpeg',
     creatorName: 'Health for All NGO',
     creatorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=18',
     status: 'verified',
     createdAt: '2024-01-20',
     endDate: '2024-06-20',
     tags: ['medical', 'rural', 'healthcare'],
-    updates: [
-      { date: '2024-03-22', message: '3,500 patients examined in last camp.' },
-    ],
+    updates: [{ date: '2024-03-22', message: '3,500 patients examined in last camp.' }],
     recentDonors: [
       { name: 'Medical Professionals', amount: 150000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=19' },
       { name: 'Dhaka Hospital Group', amount: 100000, date: '2024-03-23', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=20' },
     ],
+    acceptedItems: [
+      { id: 'item16', name: 'Over-the-counter Medicines', description: 'Paracetamol, ORS, Antihistamines', category: 'medical' },
+      { id: 'item17', name: 'First Aid Kits', description: 'Bandages, antiseptic, gauze', category: 'medical' },
+      { id: 'item18', name: 'Blood Pressure Monitors', description: 'Digital or manual', category: 'medical' },
+    ],
   },
 ];
-
 // Popular categories for item donations
 export const itemCategories = [
   { id: 'clothes', name: 'Clothes', icon: '👕', color: 'bg-blue-100' },

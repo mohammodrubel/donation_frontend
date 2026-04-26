@@ -106,13 +106,15 @@ function CharitySection() {
 
                   {/* Action Buttons */}
                   <div className="flex items-center justify-between gap-3 pt-3 border-t border-gray-100">
-                    <Link
+                    <Button>
+                      <Link
                       href={`/charity/${charity.id}`}
-                      className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors flex-1"
+                      className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white  rounded-lg transition-colors flex-1"
                     >
                       Learn More
                       <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                     </Link>
+                    </Button>
                     
                     {charity.website && (
                       <a
@@ -139,7 +141,7 @@ function CharitySection() {
               <h3 className="text-2xl font-bold text-gray-800 mb-2">Want to make a difference?</h3>
               <p className="text-gray-600 mb-4">Every contribution, big or small, helps us create lasting change.</p>
               <Link href="/charity">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-8">
+              <Button className=" text-white px-8">
                 Get All Charity
               </Button>
               </Link>
