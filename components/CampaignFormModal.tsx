@@ -7,33 +7,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { CampaignForm } from "./form/CampaignForm";
-
-export interface CampaignFormData {
-  id?: string; // ✅ FIXED
-  title: string;
-  slug: string;
-  description: string;
-  story: string;
-  category: string;
-
-  goalAmount: number;
-  endDate: string;
-
-  image: string;
-
-  tags: string[];
-  acceptedItems: string[]; // 🔥 must include if schema uses it
-
-  featured: boolean;
-}
+import {
+  CampaignForm,
+  CampaignFormData,
+} from "@/components/form/CampaignForm";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData: CampaignFormData;
-  onSubmit: (data: CampaignFormData) => void;
-  onCancel?: () => void;
+  onSubmit: (data: CampaignFormData, file: File | null) => Promise<void>;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 
 export function CampaignFormModal({
@@ -42,6 +27,7 @@ export function CampaignFormModal({
   initialData,
   onSubmit,
   onCancel,
+  isLoading,
 }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -54,14 +40,9 @@ export function CampaignFormModal({
 
         <CampaignForm
           initialData={initialData}
-          onSubmit={(data) => {
-            onSubmit(data);
-            onOpenChange(false);
-          }}
-          onCancel={() => {
-            onCancel?.(); // safe call
-            onOpenChange(false);
-          }}
+          onSubmit={onSubmit}
+          onCancel={onCancel}
+          isLoading={isLoading}
         />
       </DialogContent>
     </Dialog>

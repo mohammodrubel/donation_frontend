@@ -3,47 +3,41 @@ import { tagTypes } from "../../Tagtypes";
 
 export const campaignApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // CREATE CAMPAIGN
     createCampaign: builder.mutation({
       query: (formData) => ({
         url: "/campaign",
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: [tagTypes.campaign],
     }),
 
-    // GET ALL CAMPAIGNS
     getCampaigns: builder.query({
-      query: (params) => ({
-        url: "/campaign",
+      query: () => ({
+        url: "/campaign/all",
         method: "GET",
-        params,
       }),
       providesTags: [tagTypes.campaign],
     }),
 
-    // GET SINGLE CAMPAIGN
     getSingleCampaign: builder.query({
-      query: (id) => ({
+      query: (id: string) => ({
         url: `/campaign/${id}`,
         method: "GET",
       }),
-      providesTags: [tagTypes.campaign],
     }),
 
-    // UPDATE CAMPAIGN
     updateCampaign: builder.mutation({
-      query: ({ id, formData }) => ({
+      query: ({ id, data }) => ({
         url: `/campaign/${id}`,
-        method: "PATCH",
-        body: formData,
+        method: "PUT",
+        body: data,
       }),
       invalidatesTags: [tagTypes.campaign],
     }),
 
-    // DELETE CAMPAIGN
     deleteCampaign: builder.mutation({
-      query: (id) => ({
+      query: (id: string) => ({
         url: `/campaign/${id}`,
         method: "DELETE",
       }),
