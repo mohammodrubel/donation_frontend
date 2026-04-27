@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Heart, Check, AlertCircle, ArrowRight, Loader2, Calendar } from 'lucide-react'
 import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
@@ -210,7 +211,7 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
         )}
 
-        {/* Step 2: Campaign Selection with Start & End Dates */}
+        {/* Step 2: Campaign Selection with Image, Start & End Dates */}
         {step === 2 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
@@ -248,22 +249,36 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
                         : 'border-border hover:border-primary/50'
                     }`}
                   >
-                    <div className="space-y-2">
-                      <p className="font-semibold text-foreground text-lg">{campaign.title}</p>
-                      
-                      {truncatedDesc && (
-                        <p className="text-sm text-foreground/70 line-clamp-2">{truncatedDesc}</p>
+                    <div className="flex gap-4">
+                      {/* Campaign Image */}
+                      {campaign.image && (
+                        <div className="flex-shrink-0 w-20 h-20 relative rounded-lg overflow-hidden bg-muted">
+                          <Image
+                            src={campaign.image}
+                            alt={campaign.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                       )}
                       
-                      {/* Start and End Dates */}
-                      <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>Start: {formatDate(campaign.startDate)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>End: {formatDate(campaign.endDate)}</span>
+                      <div className="flex-1 space-y-2">
+                        <p className="font-semibold text-foreground text-lg">{campaign.title}</p>
+                        
+                        {truncatedDesc && (
+                          <p className="text-sm text-foreground/70 line-clamp-2">{truncatedDesc}</p>
+                        )}
+                        
+                        {/* Start and End Dates */}
+                        <div className="flex items-center gap-4 text-xs text-foreground/60">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>Start: {formatDate(campaign.startDate)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>End: {formatDate(campaign.endDate)}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -346,7 +361,7 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
         )}
 
-        {/* Step 4: Review & Confirm */}
+        {/* Step 4: Review & Confirm with Image */}
         {step === 4 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
@@ -374,18 +389,32 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
 
               {selectedCampaign && selectedCampaignData && (
                 <div className="p-4 rounded-xl bg-muted">
-                  <p className="text-xs text-foreground/60 mb-1">Campaign</p>
-                  <p className="font-semibold text-foreground">{selectedCampaignData.title}</p>
-                  <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
-                    <span>📅 Start: {formatDate(selectedCampaignData.startDate)}</span>
-                    <span>📅 End: {formatDate(selectedCampaignData.endDate)}</span>
+                  <div className="flex gap-4">
+                    {selectedCampaignData.image && (
+                      <div className="flex-shrink-0 w-16 h-16 relative rounded-lg overflow-hidden bg-muted">
+                        <Image
+                          src={selectedCampaignData.image}
+                          alt={selectedCampaignData.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="text-xs text-foreground/60 mb-1">Campaign</p>
+                      <p className="font-semibold text-foreground">{selectedCampaignData.title}</p>
+                      <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
+                        <span>📅 Start: {formatDate(selectedCampaignData.startDate)}</span>
+                        <span>📅 End: {formatDate(selectedCampaignData.endDate)}</span>
+                      </div>
+                      {selectedCampaignData.description && (
+                        <p className="text-sm text-foreground/70 mt-2">
+                          {selectedCampaignData.description.replace(/<[^>]*>/g, '').substring(0, 120)}
+                          {selectedCampaignData.description.replace(/<[^>]*>/g, '').length > 120 ? '...' : ''}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  {selectedCampaignData.description && (
-                    <p className="text-sm text-foreground/70 mt-2">
-                      {selectedCampaignData.description.replace(/<[^>]*>/g, '').substring(0, 120)}
-                      {selectedCampaignData.description.replace(/<[^>]*>/g, '').length > 120 ? '...' : ''}
-                    </p>
-                  )}
                 </div>
               )}
 
