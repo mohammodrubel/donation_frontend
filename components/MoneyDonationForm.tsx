@@ -2,12 +2,27 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { campaigns } from '@/lib/mockData'
 import { Button } from '@/components/ui/button'
-import { Heart, Check, AlertCircle, ArrowRight } from 'lucide-react'
+import { Heart, Check, AlertCircle, ArrowRight, Loader2, Calendar } from 'lucide-react'
+import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
 
 interface MoneyDonationFormProps {
   campaignId?: string
+}
+
+interface Campaign {
+  id: string
+  title: string
+  description: string
+  collectedAmount: number
+  goalAmount: number
+  creatorId: string
+  startDate: string
+  endDate: string
+  image?: string
+  slug?: string
+  status?: string
+  tags?: string[]
 }
 
 export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
@@ -21,9 +36,23 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
   const [selectedCampaign, setSelectedCampaign] = useState(campaignId || '')
   const [completed, setCompleted] = useState(false)
 
+  const { data, isLoading, isError } = useGetCampaignsQuery(undefined)
+  const campaigns: Campaign[] = data?.data || []
+
   const finalAmount = customAmount ? parseInt(customAmount) : parseInt(amount)
   const selectedCampaignData = campaigns.find(c => c.id === selectedCampaign)
+
   const presetAmounts = [500, 1000, 2500, 5000, 10000]
+
+  // Format date to readable string
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    })
+  }
 
   const handleNext = () => {
     if (step === 1 && !finalAmount) {
@@ -52,6 +81,34 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
       setSelectedCampaign(campaignId || '')
       setCompleted(false)
     }, 3000)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-secondary/5">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-foreground/70">Loading campaigns...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-secondary/5 px-4">
+        <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center border border-border/50">
+          <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground mb-3">Unable to load campaigns</h1>
+          <p className="text-foreground/70 mb-6">Please try again later or contact support.</p>
+          <Button onClick={() => window.location.reload()} className="w-full">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (completed) {
@@ -153,7 +210,7 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
         )}
 
-        {/* Step 2: Campaign Selection */}
+        {/* Step 2: Campaign Selection with Start & End Dates */}
         {step === 2 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
@@ -174,33 +231,45 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
                 <p className="text-sm text-foreground/60">Support our general fund for maximum flexibility</p>
               </button>
 
-              {campaigns.map(campaign => (
-                <button
-                  key={campaign.id}
-                  onClick={() => setSelectedCampaign(campaign.id)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all w-full ${
-                    selectedCampaign === campaign.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground">{campaign.title}</p>
-                      <p className="text-sm text-foreground/60">by {campaign.creatorName}</p>
-                      <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden max-w-xs">
-                        <div
-                          className="h-2 bg-primary"
-                          style={{ width: `${((campaign.collectedAmount / campaign.goalAmount) * 100)}%` }}
-                        />
+              {campaigns.map(campaign => {
+                // Strip HTML tags from description
+                const plainDescription = campaign.description?.replace(/<[^>]*>/g, '') || ''
+                const truncatedDesc = plainDescription.length > 100 
+                  ? plainDescription.substring(0, 100) + '...' 
+                  : plainDescription
+
+                return (
+                  <button
+                    key={campaign.id}
+                    onClick={() => setSelectedCampaign(campaign.id)}
+                    className={`p-4 rounded-xl border-2 text-left transition-all w-full ${
+                      selectedCampaign === campaign.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <p className="font-semibold text-foreground text-lg">{campaign.title}</p>
+                      
+                      {truncatedDesc && (
+                        <p className="text-sm text-foreground/70 line-clamp-2">{truncatedDesc}</p>
+                      )}
+                      
+                      {/* Start and End Dates */}
+                      <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Start: {formatDate(campaign.startDate)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>End: {formatDate(campaign.endDate)}</span>
+                        </div>
                       </div>
                     </div>
-                    <span className="text-sm font-semibold text-foreground/60 whitespace-nowrap">
-                      {Math.round((campaign.collectedAmount / campaign.goalAmount) * 100)}%
-                    </span>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                )
+              })}
             </div>
 
             <div className="flex gap-3">
@@ -307,6 +376,16 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
                 <div className="p-4 rounded-xl bg-muted">
                   <p className="text-xs text-foreground/60 mb-1">Campaign</p>
                   <p className="font-semibold text-foreground">{selectedCampaignData.title}</p>
+                  <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
+                    <span>📅 Start: {formatDate(selectedCampaignData.startDate)}</span>
+                    <span>📅 End: {formatDate(selectedCampaignData.endDate)}</span>
+                  </div>
+                  {selectedCampaignData.description && (
+                    <p className="text-sm text-foreground/70 mt-2">
+                      {selectedCampaignData.description.replace(/<[^>]*>/g, '').substring(0, 120)}
+                      {selectedCampaignData.description.replace(/<[^>]*>/g, '').length > 120 ? '...' : ''}
+                    </p>
+                  )}
                 </div>
               )}
 

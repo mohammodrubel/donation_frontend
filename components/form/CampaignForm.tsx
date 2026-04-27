@@ -161,8 +161,13 @@ export function CampaignForm({
             <option value="food">Food</option>
             <option value="family">Family</option>
             <option value="community">Community</option>
+            <option value="emergency">Emergency</option>
+            <option value="disaster">Disaster</option>
+            <option value="shelter">Shelter</option>
+            <option value="orphan">Orphan</option>
+            <option value="women">Women</option>
           </select>
-
+ 
           <Input
             type="number"
             placeholder="Goal Amount"

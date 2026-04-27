@@ -1,6 +1,7 @@
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { CampaignListing } from '@/components/CampaignListing'
+import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
 
 export const metadata = {
   title: 'Campaigns - DonateBridge',
@@ -8,6 +9,7 @@ export const metadata = {
 }
 
 export default function CampaignsPage() {
+ 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
