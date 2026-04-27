@@ -5,10 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi';
-import { CampaignCard } from './CampaignCard';
 import { Campaign } from '@/lib/types';
-
-
+import { CampaignSkeleton } from './CampaignSkeleton';
+import { CampaignCard } from './CampaignCard';
 
 export function FeaturedCampaigns() {
   const { data, isLoading, error } = useGetCampaignsQuery(undefined);
@@ -38,9 +37,16 @@ export function FeaturedCampaigns() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {
-            campaigns?.map((item:Campaign)=> <CampaignCard campaign={item} categoryLabel='Fetchers'/>)
-          }
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, idx) => <CampaignSkeleton key={idx} />)
+            : campaigns.map((campaign:Campaign) => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                //   featured={campaign.tags?.includes('urgent')} 
+                //   showButton={true}                        
+                />
+              ))}
         </div>
 
         {!isLoading && campaigns.length > 0 && (
