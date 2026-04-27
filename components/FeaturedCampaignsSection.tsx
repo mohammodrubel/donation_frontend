@@ -39,7 +39,7 @@ export function FeaturedCampaigns() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {
-            campaigns?.map((item:Campaign)=> <CampaignCard campaign={item} categoryLabel='Fetchers'/>)
+            campaigns?.map((item:Campaign)=> <CampaignCard key={item.id} campaign={item} categoryLabel='Fetchers'/>)
           }
         </div>
 
