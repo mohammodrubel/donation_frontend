@@ -4,11 +4,19 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useDispatch, useSelector } from 'react-redux'
+import { stat } from 'fs'
+import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [animateHeader, setAnimateHeader] = useState(false)
+  const dispatch = useDispatch()
+  const user = useSelector((state)=> state?.auth?.user)
 
+  const handleLogout = ()=>{
+    dispatch(logout())
+  }
   useEffect(() => {
     // Check if this is the first visit (sessionStorage = resets on tab close)
     const hasVisited = sessionStorage.getItem('hasSeenHeaderAnimation')
@@ -56,7 +64,10 @@ export function Header() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="outline" asChild><Link href="/auth">Sign In</Link></Button>
+            {
+              user ? <Button onClick={handleLogout} variant="outline" asChild><Link href="/#">Logout</Link></Button>
+              :
+            <Button variant="outline" asChild><Link href="/auth">Sign In</Link></Button>}
             <Button asChild className="bg-primary hover:bg-primary/90"><Link href="/donate-money">Donate Now</Link></Button>
           </div>
 
@@ -85,7 +96,11 @@ export function Header() {
               Start Fundraiser
             </Link>
             <div className="px-4 py-3 space-y-2 border-t border-border/40 mt-2 pt-3">
-              <Button variant="outline" asChild className="w-full"><Link href="/auth">Sign In</Link></Button>
+              {
+                user ? 
+                <Button onClick={handleLogout} variant="outline" asChild className="w-full"><Link href="#">Logout</Link></Button> 
+                :
+              <Button variant="outline" asChild className="w-full"><Link href="/auth">Sign In</Link></Button>}
               <Button asChild className="w-full bg-primary hover:bg-primary/90"><Link href="/donate-money">Donate Now</Link></Button>
             </div>
           </nav>

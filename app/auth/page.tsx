@@ -64,7 +64,11 @@ export default function AuthPage() {
       const user: any = JwtDecode(token);
       dispatch(setUser({ user, token }));
       toast.success(res.message || "Login successful");
-      router.push("/dashboard");
+      if(user.role === "ADMIN"){
+        router.push("/dashboard");
+      }else{
+        router.push("/")
+      }
     } catch (error: any) {
       toast.error(error?.data?.message || "Login failed");
     } finally {
