@@ -9,7 +9,7 @@ export const itemDonationApi = baseApi.injectEndpoints({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: [tagTypes.itemDonation],
+      invalidatesTags: [tagTypes.campaign],
     }),
 
     getItemDonations: builder.query({

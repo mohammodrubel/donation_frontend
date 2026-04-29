@@ -1,234 +1,384 @@
-'use client'
+'use client';
 
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Gift, Plus, MapPin, Calendar, Truck, CheckCircle } from 'lucide-react'
+import { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useGetItemDonationsQuery } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Trash2, RefreshCw, Package, User, Image as ImageIcon, X } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 
-export default function ItemsPage() {
-  const itemDonations = [
-    {
-      id: 1,
-      title: 'Clothing Bundle - Winter Collection',
-      category: 'Clothes',
-      items: 15,
-      status: 'Pending Pickup',
-      statusColor: 'bg-yellow-100 text-yellow-800',
-      location: '123 Main St, Dhaka',
-      scheduledDate: '2024-04-20',
-      image: '👕',
-      timeline: [
-        { step: 'Pending', completed: true },
-        { step: 'Accepted', completed: false },
-        { step: 'Scheduled', completed: false },
-        { step: 'Collected', completed: false },
-        { step: 'Delivered', completed: false },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Educational Books Collection',
-      category: 'Books',
-      items: 8,
-      status: 'Scheduled',
-      statusColor: 'bg-blue-100 text-blue-800',
-      location: '456 Oak Ave, Dhaka',
-      scheduledDate: '2024-04-18',
-      image: '📚',
-      timeline: [
-        { step: 'Pending', completed: true },
-        { step: 'Accepted', completed: true },
-        { step: 'Scheduled', completed: true },
-        { step: 'Collected', completed: false },
-        { step: 'Delivered', completed: false },
-      ],
-    },
-    {
-      id: 3,
-      title: 'Kitchen & Dining Items',
-      category: 'Kitchen',
-      items: 12,
-      status: 'Delivered',
-      statusColor: 'bg-green-100 text-green-800',
-      location: '789 Pine Rd, Dhaka',
-      scheduledDate: '2024-04-01',
-      image: '🍴',
-      timeline: [
-        { step: 'Pending', completed: true },
-        { step: 'Accepted', completed: true },
-        { step: 'Scheduled', completed: true },
-        { step: 'Collected', completed: true },
-        { step: 'Delivered', completed: true },
-      ],
-    },
-    {
-      id: 4,
-      title: 'Furniture - Office Desk & Chair',
-      category: 'Furniture',
-      items: 2,
-      status: 'Collected',
-      statusColor: 'bg-purple-100 text-purple-800',
-      location: '321 Elm St, Dhaka',
-      scheduledDate: '2024-04-10',
-      image: '🪑',
-      timeline: [
-        { step: 'Pending', completed: true },
-        { step: 'Accepted', completed: true },
-        { step: 'Scheduled', completed: true },
-        { step: 'Collected', completed: true },
-        { step: 'Delivered', completed: false },
-      ],
-    },
-  ]
+export default function ItemDonationTable() {
+  const { data, isLoading, refetch } = useGetItemDonationsQuery(undefined);
+  const items = data?.data || [];
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedPhotos, setSelectedPhotos] = useState<string[] | null>(null);
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-  const totalItems = itemDonations.reduce((sum, d) => sum + d.items, 0)
-  const deliveredItems = itemDonations.filter(d => d.status === 'Delivered').length
+  const handleStatusChange = async (id: string, status: string) => {
+    setUpdatingId(id);
+    try {
+      const res = await fetch(`/api/item-donation/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      toast.success('Status updated successfully');
+      refetch();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update status');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this donation?')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/item-donation/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      toast.success('Donation deleted');
+      refetch();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete donation');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const openPhotoGallery = (photos: string[]) => {
+    setSelectedPhotos(photos);
+    setCurrentPhotoIndex(0);
+    setIsPhotoModalOpen(true);
+  };
+
+  const nextPhoto = () => {
+    if (selectedPhotos) {
+      setCurrentPhotoIndex((prev) => (prev + 1) % selectedPhotos.length);
+    }
+  };
+
+  const prevPhoto = () => {
+    if (selectedPhotos) {
+      setCurrentPhotoIndex((prev) => (prev - 1 + selectedPhotos.length) % selectedPhotos.length);
+    }
+  };
+
+  const getStatusConfig = (status: string) => {
+    const config: Record<string, { label: string; className: string }> = {
+      pending: { label: 'Pending', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+      assigned: { label: 'Assigned', className: 'bg-blue-100 text-blue-700 border-blue-200' },
+      picked_up: { label: 'Picked Up', className: 'bg-purple-100 text-purple-700 border-purple-200' },
+      delivered: { label: 'Delivered', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+      cancelled: { label: 'Cancelled', className: 'bg-rose-100 text-rose-700 border-rose-200' },
+    };
+    return config[status] || { label: status, className: 'bg-gray-100 text-gray-700' };
+  };
+
+  if (isLoading) return <TableSkeleton />;
+
+  if (!items.length) {
+    return (
+      <div className="border rounded-2xl bg-white p-12 text-center">
+        <div className="flex flex-col items-center gap-3">
+          <Package className="w-12 h-12 text-gray-300" />
+          <h3 className="text-lg font-semibold text-gray-900">No item donations yet</h3>
+          <p className="text-sm text-gray-500">When donors contribute items, they will appear here.</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-2">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">My Item Donations</h1>
-          <p className="text-muted-foreground mt-2">Track your donations from submission to delivery</p>
+    <TooltipProvider>
+      <div className="border rounded-2xl bg-white shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50/50">
+          <div className="flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            <h2 className="font-semibold text-gray-900">Item Donations</h2>
+            <Badge variant="secondary" className="ml-2">{items.length} total</Badge>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8">
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh list</TooltipContent>
+          </Tooltip>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Donate Items
-        </Button>
-      </div>
 
-      {/* Stats */}
-      <div className="grid md:grid-cols-4 gap-6">
-        <Card className="p-6">
-          <p className="text-muted-foreground text-sm mb-2">Total Items</p>
-          <p className="text-3xl font-bold text-primary">{totalItems}</p>
-          <p className="text-xs text-muted-foreground mt-2">All donations combined</p>
-        </Card>
-        <Card className="p-6">
-          <p className="text-muted-foreground text-sm mb-2">Active Donations</p>
-          <p className="text-3xl font-bold text-primary">{itemDonations.filter(d => d.status !== 'Delivered').length}</p>
-          <p className="text-xs text-muted-foreground mt-2">In progress</p>
-        </Card>
-        <Card className="p-6">
-          <p className="text-muted-foreground text-sm mb-2">Delivered</p>
-          <p className="text-3xl font-bold text-primary">{deliveredItems}</p>
-          <p className="text-xs text-muted-foreground mt-2">Successfully delivered</p>
-        </Card>
-        <Card className="p-6">
-          <p className="text-muted-foreground text-sm mb-2">Impact Score</p>
-          <p className="text-3xl font-bold text-primary">⭐ 4.8</p>
-          <p className="text-xs text-muted-foreground mt-2">Donor rating</p>
-        </Card>
-      </div>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <Table className="min-w-[1000px]">
+            <TableHeader>
+              <TableRow className="bg-gray-50/80">
+                <TableHead className="font-semibold">Donor</TableHead>
+                <TableHead className="font-semibold">Category</TableHead>
+                <TableHead className="font-semibold">Qty</TableHead>
+                <TableHead className="font-semibold">Photos</TableHead>
+                <TableHead className="font-semibold">Status</TableHead>
+                <TableHead className="font-semibold">Campaign</TableHead>
+                <TableHead className="font-semibold text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
 
-      {/* Item Donations List */}
-      <div className="space-y-6">
-        {itemDonations.map((donation) => (
-          <Card key={donation.id} className="p-6 hover:shadow-lg transition-shadow">
-            <div className="flex flex-col md:flex-row gap-6">
-              {/* Left Section - Basic Info */}
-              <div className="flex-1">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="text-4xl">{donation.image}</div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div>
-                        <h3 className="text-lg font-bold text-foreground">{donation.title}</h3>
-                        <p className="text-sm text-muted-foreground">{donation.items} items • {donation.category}</p>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${donation.statusColor}`}>
-                        {donation.status}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {donation.location}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {donation.scheduledDate}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <TableBody>
+              {items.map((item: any) => {
+                const statusConfig = getStatusConfig(item.status);
+                const photos = item.photos || [];
+                const hasPhotos = photos.length > 0;
 
-                {/* Timeline */}
-                <div className="mt-6">
-                  <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase">Delivery Timeline</p>
-                  <div className="flex gap-2">
-                    {donation.timeline.map((step, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <div
-                          className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors ${
-                            step.completed
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-muted-foreground'
-                          }`}
-                        >
-                          {step.completed ? '✓' : idx + 1}
+                return (
+                  <TableRow key={item.id} className="group hover:bg-gray-50/50 transition-colors">
+                    {/* Donor column with image */}
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-primary/20 to-primary/10 flex-shrink-0">
+                          {item.donor?.avatar ? (
+                            <img
+                              src={item.donor.avatar}
+                              alt={item.donor?.name || 'Donor avatar'}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                          )}
                         </div>
-                        <span className="text-xs text-muted-foreground hidden sm:inline">{step.step}</span>
-                        {idx < donation.timeline.length - 1 && (
-                          <div className={`w-8 h-0.5 ${step.completed ? 'bg-primary' : 'bg-border'}`}></div>
-                        )}
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {item.donor?.name || 'Anonymous'}
+                          </p>
+                          {item.contactName && item.contactName !== item.donor?.name && (
+                            <p className="text-xs text-gray-500">Contact: {item.contactName}</p>
+                          )}
+                          {item.donor?.email && (
+                            <p className="text-xs text-gray-400 hidden sm:block">{item.donor.email}</p>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                    </TableCell>
 
-              {/* Right Section - Actions */}
-              <div className="md:w-48 flex flex-col gap-3">
-                {donation.status === 'Pending Pickup' && (
+                    {/* Category */}
+                    <TableCell className="capitalize">{item.category || '—'}</TableCell>
+
+                    {/* Quantity */}
+                    <TableCell className="font-mono text-sm">{item.quantity || 1}</TableCell>
+
+                    {/* Photos column - show first photo as thumbnail, click to open gallery */}
+                    <TableCell>
+                      {hasPhotos ? (
+                        <div
+                          className="relative w-14 h-14 rounded-lg overflow-hidden cursor-pointer border border-gray-200 hover:border-primary transition-all shadow-sm hover:shadow-md"
+                          onClick={() => openPhotoGallery(photos)}
+                        >
+                          <img
+                            src={photos[0]}
+                            alt="Donation item"
+                            className="w-full h-full object-cover"
+                          />
+                          {photos.length > 1 && (
+                            <div className="absolute bottom-0 right-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-tl-md">
+                              +{photos.length}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <ImageIcon className="w-4 h-4" />
+                          <span className="text-sm">—</span>
+                        </div>
+                      )}
+                    </TableCell>
+
+                    {/* Status badge only */}
+                    <TableCell>
+                      <Badge variant="outline" className={statusConfig.className}>
+                        {statusConfig.label}
+                      </Badge>
+                    </TableCell>
+
+                    {/* Campaign */}
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-gray-900 line-clamp-1">
+                          {item.campaign?.title || '—'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5 capitalize">
+                          {item.campaign?.category}
+                        </p>
+                      </div>
+                    </TableCell>
+
+                    {/* Actions: Status Dropdown + Delete Button */}
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-2">
+                        <Select
+                          defaultValue={item.status}
+                          onValueChange={(value) => handleStatusChange(item.id, value)}
+                          disabled={updatingId === item.id}
+                        >
+                          <SelectTrigger className="w-[130px] h-8 text-xs">
+                            <SelectValue placeholder="Change status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="assigned">Assigned</SelectItem>
+                            <SelectItem value="picked_up">Picked Up</SelectItem>
+                            <SelectItem value="delivered">Delivered</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => handleDelete(item.id)}
+                              disabled={deletingId === item.id}
+                              className="text-gray-500 hover:text-rose-600 hover:bg-rose-50"
+                            >
+                              {deletingId === item.id ? (
+                                <RefreshCw className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete donation</TooltipContent>
+                        </Tooltip>
+                      </div>
+                      {updatingId === item.id && (
+                        <div className="h-0.5 w-full bg-primary/20 rounded-full mt-1 overflow-hidden">
+                          <div className="h-full w-1/2 bg-primary animate-pulse rounded-full" />
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Photo Gallery Modal */}
+      <Dialog open={isPhotoModalOpen} onOpenChange={setIsPhotoModalOpen}>
+        <DialogContent className="max-w-4xl p-0 bg-black/95 border-none sm:rounded-2xl overflow-hidden">
+          <DialogTitle className="sr-only">Donation Photos</DialogTitle>
+          <div className="relative flex items-center justify-center min-h-[500px]">
+            {selectedPhotos && selectedPhotos.length > 0 && (
+              <>
+                <img
+                  src={selectedPhotos[currentPhotoIndex]}
+                  alt={`Donation photo ${currentPhotoIndex + 1}`}
+                  className="max-h-[80vh] max-w-full object-contain"
+                />
+                {/* Navigation buttons */}
+                {selectedPhotos.length > 1 && (
                   <>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
-                      <Truck className="w-4 h-4 mr-2" />
-                      Reschedule Pickup
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                      onClick={prevPhoto}
+                    >
+                      ❮
                     </Button>
-                    <Button variant="outline" className="w-full">
-                      View Details
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                      onClick={nextPhoto}
+                    >
+                      ❯
                     </Button>
                   </>
                 )}
-                {donation.status === 'Scheduled' && (
-                  <>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
-                      <Truck className="w-4 h-4 mr-2" />
-                      Track Pickup
-                    </Button>
-                    <Button variant="outline" className="w-full">
-                      View Details
-                    </Button>
-                  </>
-                )}
-                {donation.status === 'Collected' && (
-                  <>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
-                      <Truck className="w-4 h-4 mr-2" />
-                      Track Delivery
-                    </Button>
-                    <Button variant="outline" className="w-full">
-                      View Details
-                    </Button>
-                  </>
-                )}
-                {donation.status === 'Delivered' && (
-                  <>
-                    <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Delivered
-                    </Button>
-                    <Button variant="outline" className="w-full">
-                      View Impact
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </Card>
+                {/* Close button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full"
+                  onClick={() => setIsPhotoModalOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+                {/* Counter */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                  {currentPhotoIndex + 1} / {selectedPhotos.length}
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
+  );
+}
+
+// Skeleton loader
+function TableSkeleton() {
+  return (
+    <div className="border rounded-2xl bg-white p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-7 w-36" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-14 w-14 rounded-lg" />
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-6 w-40 flex-1" />
+            <Skeleton className="h-8 w-36" />
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
