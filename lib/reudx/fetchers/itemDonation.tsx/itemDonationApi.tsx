@@ -19,6 +19,13 @@ export const itemDonationApi = baseApi.injectEndpoints({
       }),
       providesTags: [tagTypes.itemDonation],
     }),
+    getMyDonations: builder.query({
+      query: () => ({
+        url: "/item-donation/my",
+        method: "GET",
+      }),
+      providesTags: [tagTypes.itemDonation],
+    }),
 
     getSingleItemDonation: builder.query({
       query: (id: string) => ({
@@ -52,4 +59,5 @@ export const {
   useGetSingleItemDonationQuery,
   useUpdateItemDonationMutation,
   useDeleteItemDonationMutation,
+  useGetMyDonationsQuery
 } = itemDonationApi;
