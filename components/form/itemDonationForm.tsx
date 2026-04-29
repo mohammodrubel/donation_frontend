@@ -7,6 +7,8 @@ import { Camera, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useCreateItemDonationMutation } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface ItemDonationFormProps {
   campaignId: string;
@@ -28,17 +30,18 @@ function ItemDonationForm({
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+ 
 
   const [formData, setFormData] = useState({
     contactName: user?.name || '',
     contactEmail: user?.email || '',
     contactPhone: '',
-    itemName: '',
     category: 'other',
     quantity: 1,
     condition: 'new',
     description: '',
     pickupAddress: '',
+    campaignId:campaignId,
     preferredDate: '',
     preferredTime: '',
   });
@@ -97,10 +100,10 @@ function ItemDonationForm({
       contactName: user?.name || '',
       contactEmail: user?.email || '',
       contactPhone: '',
-      itemName: '',
       category: 'other',
       quantity: 1,
       condition: 'new',
+      campaignId:campaignId,
       description: '',
       pickupAddress: '',
       preferredDate: '',
@@ -121,51 +124,16 @@ function ItemDonationForm({
     try {
       const payload = new FormData();
 
-      payload.append('campaignId', campaignId);
-      payload.append(
-        'contactName',
-        formData.contactName
-      );
-      payload.append(
-        'contactEmail',
-        formData.contactEmail
-      );
-      payload.append(
-        'contactPhone',
-        formData.contactPhone
-      );
-      payload.append('itemName', formData.itemName);
-      payload.append('category', formData.category);
-      payload.append(
-        'quantity',
-        String(formData.quantity)
-      );
-      payload.append(
-        'condition',
-        formData.condition
-      );
-      payload.append(
-        'description',
-        formData.description
-      );
-      payload.append(
-        'pickupAddress',
-        formData.pickupAddress
-      );
-      payload.append(
-        'preferredDate',
-        formData.preferredDate
-      );
-      payload.append(
-        'preferredTime',
-        formData.preferredTime
-      );
-
+      console.log(formData)
+      payload.append("data", JSON.stringify(formData));
       photoFiles.forEach((file) => {
-        payload.append('photos', file);
+        payload.append("files", file);
       });
 
-      await createItemDonation(payload).unwrap();
+      const reposnce = await createItemDonation(payload).unwrap();
+      if(reposnce.success){
+        toast.success(Response?.message || "successfully sending Donation Information")
+      }
 
       resetForm();
 
@@ -229,32 +197,6 @@ function ItemDonationForm({
             className="w-full border rounded-lg p-3"
             required
           />
-
-          <select
-            name="itemName"
-            value={formData.itemName}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-            required
-          >
-            <option value="">
-              Select Item *
-            </option>
-
-            {acceptedItems?.map(
-              (
-                item: string,
-                index: number
-              ) => (
-                <option
-                  key={index}
-                  value={item}
-                >
-                  {item}
-                </option>
-              )
-            )}
-          </select>
 
           <select
             name="category"

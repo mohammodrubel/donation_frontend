@@ -21,7 +21,6 @@ import { campaignCategories } from '@/lib/mockData';
 import { useGetSingleCampaignQuery } from '@/lib/reudx/fetchers/campain/campainApi';
 import ItemDonationForm from './form/itemDonationForm';
 
-
 interface CampaignDetailsProps {
   id: string;
 }
