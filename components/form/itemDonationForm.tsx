@@ -7,7 +7,7 @@ import { Camera, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useCreateItemDonationMutation } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface ItemDonationFormProps {
@@ -22,7 +22,7 @@ function ItemDonationForm({
   onSuccess,
 }: ItemDonationFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const router = useRouter()
   const user = useSelector((state: any) => state?.auth?.user);
 
   const [createItemDonation, { isLoading }] =
@@ -133,6 +133,7 @@ function ItemDonationForm({
       const reposnce = await createItemDonation(payload).unwrap();
       if(reposnce.success){
         toast.success(Response?.message || "successfully sending Donation Information")
+        router.push("/dashboard/user/my-donations")
       }
 
       resetForm();
