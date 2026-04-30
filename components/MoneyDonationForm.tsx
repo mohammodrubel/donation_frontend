@@ -1,51 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Heart, Check, AlertCircle, ArrowRight, Loader2, Calendar } from 'lucide-react'
+import { Heart, Check, AlertCircle, ArrowRight, Loader2, Calendar, User, Mail } from 'lucide-react'
 import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
+import { useSelector } from 'react-redux'
+import { useCreateDonationMutation } from '@/lib/reudx/fetchers/donation/donationApi'
 
-interface MoneyDonationFormProps {
-  campaignId?: string
-}
+export function MoneyDonationForm() {
+  const searchParams = useSearchParams()
+  const campaignFromUrl = searchParams.get('campaign')
 
-interface Campaign {
-  id: string
-  title: string
-  description: string
-  collectedAmount: number
-  goalAmount: number
-  creatorId: string
-  startDate: string
-  endDate: string
-  image?: string
-  slug?: string
-  status?: string
-  tags?: string[]
-}
-
-export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
   const [step, setStep] = useState(1)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState('')
   const [donorName, setDonorName] = useState('')
   const [donorEmail, setDonorEmail] = useState('')
-  const [anonymous, setAnonymous] = useState(false)
-  const [receipt, setReceipt] = useState(true)
-  const [selectedCampaign, setSelectedCampaign] = useState(campaignId || '')
+  const [selectedCampaign, setSelectedCampaign] = useState('')
   const [completed, setCompleted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const user = useSelector((state: any) => state?.auth?.user)
 
   const { data, isLoading, isError } = useGetCampaignsQuery(undefined)
-  const campaigns: Campaign[] = data?.data || []
+  const campaigns = data?.data || []
 
-  const finalAmount = customAmount ? parseInt(customAmount) : parseInt(amount)
-  const selectedCampaignData = campaigns.find(c => c.id === selectedCampaign)
+  const [createDonation, { isLoading: isSubmitting }] = useCreateDonationMutation()
+
+  // ✅ set campaign from URL
+  useEffect(() => {
+    if (campaignFromUrl) {
+      setSelectedCampaign(campaignFromUrl)
+    }
+  }, [campaignFromUrl])
+
+  // auto fill user
+  useEffect(() => {
+    if (user) {
+      if (user.name && !donorName) setDonorName(user.name)
+      if (user.email && !donorEmail) setDonorEmail(user.email)
+    }
+  }, [user, donorName, donorEmail])
+
+  const finalAmount = Number(customAmount || amount || 0)
+
+  const selectedCampaignData = campaigns.find((c: any) => c.id === selectedCampaign)
 
   const presetAmounts = [500, 1000, 2500, 5000, 10000]
 
-  // Format date to readable string
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { 
@@ -60,30 +65,46 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
       alert('Please select or enter an amount')
       return
     }
-    if (step === 2 && !selectedCampaign) {
-      alert('Please select a campaign')
-      return
-    }
-    if (step === 3 && (!donorName || !donorEmail)) {
+    if (step === 2 && (!donorName || !donorEmail)) {
       alert('Please fill in your details')
       return
     }
     setStep(step + 1)
   }
 
-  const handleSubmit = () => {
-    setCompleted(true)
-    setTimeout(() => {
-      setStep(1)
-      setAmount('')
-      setCustomAmount('')
-      setDonorName('')
-      setDonorEmail('')
-      setSelectedCampaign(campaignId || '')
-      setCompleted(false)
-    }, 3000)
+  const handleSubmit = async () => {
+    setSubmitError(null)
+
+    try {
+      if (!selectedCampaign) {
+        setSubmitError('Campaign not selected')
+        return
+      }
+
+      const donationData = {
+        amount: finalAmount,
+        donorName,
+        donorEmail,
+        campaignId: selectedCampaign,
+        donorId: user?.id || null,
+        anonymous: false,
+      }
+
+      const result = await createDonation(donationData).unwrap()
+
+      if (result?.data?.url) {
+        window.location.href = result?.data?.url
+        return
+      }
+
+      setCompleted(true)
+    } catch (err: any) {
+      setSubmitError(err?.data?.message || 'Payment failed')
+      console.log(err)
+    }
   }
 
+  // loading
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-secondary/5">
@@ -112,31 +133,15 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
     )
   }
 
-  if (completed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-primary/5 to-secondary/5 px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl p-8 sm:p-12 text-center border border-border/50">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-3">Thank You!</h1>
-          <p className="text-lg text-foreground/70 mb-2">Your donation of ৳{finalAmount.toLocaleString()} has been received.</p>
-          <p className="text-foreground/60 mb-8">A confirmation email has been sent to {donorEmail}</p>
-          <Button asChild className="w-full bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
-            <Link href="/campaigns">Back to Campaigns</Link>
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
+ 
   return (
     <main className="min-h-screen bg-gradient-to-b from-primary/5 to-secondary/5 px-4 sm:px-6 lg:px-8 py-12">
       <div className="max-w-3xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map(num => (
+            {[1, 2, 3].map(num => (
               <div key={num} className="flex-1 mx-2">
                 <div className={`h-2 rounded-full transition-colors ${
                   num <= step ? 'bg-primary' : 'bg-muted'
@@ -146,13 +151,12 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
           <div className="flex justify-between text-sm text-foreground/60 font-medium">
             <span>Amount</span>
-            <span>Campaign</span>
             <span>Details</span>
             <span>Confirm</span>
           </div>
         </div>
 
-        {/* Step 1: Amount Selection */}
+        {/* Step 1: Amount */}
         {step === 1 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
@@ -160,7 +164,6 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
               <p className="text-lg text-foreground/60">Every contribution makes a real difference</p>
             </div>
 
-            {/* Preset Amounts */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {presetAmounts.map(amt => (
                 <button
@@ -180,7 +183,6 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
               ))}
             </div>
 
-            {/* Custom Amount */}
             <div className="space-y-2">
               <label className="block text-foreground font-semibold">Or enter a custom amount</label>
               <div className="relative">
@@ -211,95 +213,8 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
         )}
 
-        {/* Step 2: Campaign Selection with Image, Start & End Dates */}
+        {/* Step 2: Personal Details */}
         {step === 2 && (
-          <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">Which campaign do you want to support?</h1>
-              <p className="text-lg text-foreground/60">Choose a campaign or leave it for general donations</p>
-            </div>
-
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              <button
-                onClick={() => setSelectedCampaign('')}
-                className={`p-4 rounded-xl border-2 text-left transition-all w-full ${
-                  selectedCampaign === ''
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <p className="font-semibold text-foreground">General Donation</p>
-                <p className="text-sm text-foreground/60">Support our general fund for maximum flexibility</p>
-              </button>
-
-              {campaigns.map(campaign => {
-                // Strip HTML tags from description
-                const plainDescription = campaign.description?.replace(/<[^>]*>/g, '') || ''
-                const truncatedDesc = plainDescription.length > 100 
-                  ? plainDescription.substring(0, 100) + '...' 
-                  : plainDescription
-
-                return (
-                  <button
-                    key={campaign.id}
-                    onClick={() => setSelectedCampaign(campaign.id)}
-                    className={`p-4 rounded-xl border-2 text-left transition-all w-full ${
-                      selectedCampaign === campaign.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="flex gap-4">
-                      {/* Campaign Image */}
-                      {campaign.image && (
-                        <div className="flex-shrink-0 w-20 h-20 relative rounded-lg overflow-hidden bg-muted">
-                          <Image
-                            src={campaign.image}
-                            alt={campaign.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="flex-1 space-y-2">
-                        <p className="font-semibold text-foreground text-lg">{campaign.title}</p>
-                        
-                        {truncatedDesc && (
-                          <p className="text-sm text-foreground/70 line-clamp-2">{truncatedDesc}</p>
-                        )}
-                        
-                        {/* Start and End Dates */}
-                        <div className="flex items-center gap-4 text-xs text-foreground/60">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            <span>Start: {formatDate(campaign.startDate)}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3.5 h-3.5" />
-                            <span>End: {formatDate(campaign.endDate)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={() => setStep(1)} variant="outline" size="lg" className="flex-1 rounded-lg h-12 font-semibold">
-                Back
-              </Button>
-              <Button onClick={handleNext} size="lg" className="flex-1 bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
-                Continue <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Personal Details */}
-        {step === 3 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-2">Donation Details</h1>
@@ -309,49 +224,35 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
             <div className="space-y-4">
               <div>
                 <label className="block text-foreground font-semibold mb-2">Full Name</label>
-                <input
-                  type="text"
-                  value={donorName}
-                  onChange={(e) => setDonorName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground"
-                />
+                <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40" />
+                  <input
+                    type="text"
+                    value={donorName}
+                    onChange={(e) => setDonorName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-foreground font-semibold mb-2">Email Address</label>
-                <input
-                  type="email"
-                  value={donorEmail}
-                  onChange={(e) => setDonorEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground"
-                />
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40" />
+                  <input
+                    type="email"
+                    value={donorEmail}
+                    onChange={(e) => setDonorEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground"
+                  />
+                </div>
               </div>
-
-              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 cursor-pointer transition-colors">
-                <input
-                  type="checkbox"
-                  checked={anonymous}
-                  onChange={(e) => setAnonymous(e.target.checked)}
-                  className="w-5 h-5 rounded border-2 border-border accent-primary cursor-pointer"
-                />
-                <span className="text-foreground font-medium">Make this donation anonymous</span>
-              </label>
-
-              <label className="flex items-center gap-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 cursor-pointer transition-colors">
-                <input
-                  type="checkbox"
-                  checked={receipt}
-                  onChange={(e) => setReceipt(e.target.checked)}
-                  className="w-5 h-5 rounded border-2 border-border accent-primary cursor-pointer"
-                />
-                <span className="text-foreground font-medium">I want a tax receipt</span>
-              </label>
             </div>
 
             <div className="flex gap-3">
-              <Button onClick={() => setStep(2)} variant="outline" size="lg" className="flex-1 rounded-lg h-12 font-semibold">
+              <Button onClick={() => setStep(1)} variant="outline" size="lg" className="flex-1 rounded-lg h-12 font-semibold">
                 Back
               </Button>
               <Button onClick={handleNext} size="lg" className="flex-1 bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
@@ -361,33 +262,32 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
           </div>
         )}
 
-        {/* Step 4: Review & Confirm with Image */}
-        {step === 4 && (
+        {/* Step 3: Confirm & Submit */}
+        {step === 3 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
               <h1 className="text-4xl font-bold text-foreground mb-2">Confirm Your Donation</h1>
               <p className="text-lg text-foreground/60">Please review your donation details</p>
             </div>
 
-            {/* Summary */}
             <div className="space-y-4">
               <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-border/50">
                 <p className="text-sm text-foreground/60 mb-2">Donation Amount</p>
                 <p className="text-4xl font-bold text-primary">৳{finalAmount.toLocaleString()}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-muted">
                   <p className="text-xs text-foreground/60 mb-1">Donor</p>
-                  <p className="font-semibold text-foreground">{anonymous ? 'Anonymous' : donorName}</p>
+                  <p className="font-semibold text-foreground">{donorName}</p>
                 </div>
                 <div className="p-4 rounded-xl bg-muted">
                   <p className="text-xs text-foreground/60 mb-1">Email</p>
-                  <p className="font-semibold text-foreground text-sm">{donorEmail}</p>
+                  <p className="font-semibold text-foreground text-sm break-all">{donorEmail}</p>
                 </div>
               </div>
 
-              {selectedCampaign && selectedCampaignData && (
+              {selectedCampaignData && (
                 <div className="p-4 rounded-xl bg-muted">
                   <div className="flex gap-4">
                     {selectedCampaignData.image && (
@@ -403,37 +303,38 @@ export function MoneyDonationForm({ campaignId }: MoneyDonationFormProps) {
                     <div className="flex-1">
                       <p className="text-xs text-foreground/60 mb-1">Campaign</p>
                       <p className="font-semibold text-foreground">{selectedCampaignData.title}</p>
-                      <div className="flex items-center gap-4 text-xs text-foreground/60 mt-2">
-                        <span>📅 Start: {formatDate(selectedCampaignData.startDate)}</span>
-                        <span>📅 End: {formatDate(selectedCampaignData.endDate)}</span>
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-foreground/60 mt-2">
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> Start: {formatDate(selectedCampaignData.startDate)}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> End: {formatDate(selectedCampaignData.endDate)}</span>
                       </div>
-                      {selectedCampaignData.description && (
-                        <p className="text-sm text-foreground/70 mt-2">
-                          {selectedCampaignData.description.replace(/<[^>]*>/g, '').substring(0, 120)}
-                          {selectedCampaignData.description.replace(/<[^>]*>/g, '').length > 120 ? '...' : ''}
-                        </p>
-                      )}
                     </div>
                   </div>
                 </div>
               )}
 
-              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Secure Payment</p>
-                  <p className="text-xs text-foreground/60">Your payment is protected by industry-standard encryption</p>
+              {submitError && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {submitError}
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="flex gap-3">
-              <Button onClick={() => setStep(3)} variant="outline" size="lg" className="flex-1 rounded-lg h-12 font-semibold">
+              <Button onClick={() => setStep(2)} variant="outline" size="lg" className="flex-1 rounded-lg h-12 font-semibold">
                 Back
               </Button>
-              <Button onClick={handleSubmit} size="lg" className="flex-1 bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
-                <Heart className="w-4 h-4 mr-2" />
-                Confirm Donation
+              <Button 
+                onClick={handleSubmit} 
+                size="lg" 
+                disabled={isSubmitting}
+                className="flex-1 bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold disabled:opacity-70"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : (
+                  <Heart className="w-4 h-4 mr-2" />
+                )}
+                {isSubmitting ? 'Processing...' : 'Confirm Donation'}
               </Button>
             </div>
           </div>
