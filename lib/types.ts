@@ -39,7 +39,7 @@ export interface Campaign {
   createdAt: string;
   updatedAt: string;
 
-  views: number;
+  contributor: number;
 
   tags: string[];
   acceptedItems: string[];

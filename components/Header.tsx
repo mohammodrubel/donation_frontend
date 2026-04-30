@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useDispatch, useSelector } from 'react-redux'
-import { stat } from 'fs'
 import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
 
 export function Header() {
@@ -52,9 +51,9 @@ export function Header() {
             <Link href="/campaigns" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
               Campaigns
             </Link>
-            <Link href="/donate-items" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
+            {/* <Link href="/donate-items" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
               Donate Items
-            </Link>
+            </Link> */}
             <Link href="/donate-money" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
               Donate Money
             </Link>
@@ -86,9 +85,9 @@ export function Header() {
             <Link href="/campaigns" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
               Campaigns
             </Link>
-            <Link href="/donate-items" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
+            {/* <Link href="/donate-items" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
               Donate Items
-            </Link>
+            </Link> */}
             <Link href="/donate-money" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
               Donate Money
             </Link>

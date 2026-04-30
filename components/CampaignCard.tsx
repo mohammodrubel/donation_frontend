@@ -20,7 +20,7 @@ export function CampaignCard({ campaign, categoryLabel }: CampaignCardProps) {
   const plainDescription = stripHtml(campaign.description || '')
   const categoryKey = campaign.category?.toLowerCase() || 'other'
   const displayCategory = categoryLabel || campaign.category || 'Other'
-
+console.log(campaign)
   return (
     <Link
       href={`/campaigns/${campaign.id}`}
@@ -110,7 +110,7 @@ export function CampaignCard({ campaign, categoryLabel }: CampaignCardProps) {
             />
           </div>
           <div className="mt-2 text-right">
-            <span className="text-xs font-medium text-gray-500">{Math.round(progress)}% funded</span>
+            <span className="text-xs font-medium text-gray-500">Contributor {campaign?.contributor}</span>
           </div>
         </div>
       </div>
