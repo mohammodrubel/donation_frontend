@@ -16,7 +16,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useGetItemDonationsQuery } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
+import { useGetItemDonationsQuery, useUpdateItemDonationMutation } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
 import {
   Select,
   SelectContent,
@@ -42,25 +42,25 @@ export default function ItemDonationTable() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[] | null>(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [statusUpdate]= useUpdateItemDonationMutation()
 
   const handleStatusChange = async (id: string, status: string) => {
-    setUpdatingId(id);
-    try {
-      const res = await fetch(`/api/item-donation/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) throw new Error('Failed to update');
-      toast.success('Status updated successfully');
-      refetch();
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to update status');
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+  setUpdatingId(id);
+  try {
+    const res = await statusUpdate({
+      id,
+      data: { status }, 
+    }).unwrap();
+
+    console.log(res);
+    refetch();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  } finally {
+    setUpdatingId(null);
+  }
+};
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this donation?')) return;

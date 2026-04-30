@@ -16,7 +16,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useGetMyDonationsQuery } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
+import { useDeleteItemDonationMutation, useGetMyDonationsQuery } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Package, ImageIcon, X, Trash2, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
@@ -32,7 +32,7 @@ export default function MyDonationsPage() {
   const { data, isLoading, refetch } = useGetMyDonationsQuery(undefined);
   const donations = data?.data || [];
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
+  const [deleteMyDonations] = useDeleteItemDonationMutation(undefined)
   const [selectedPhotos, setSelectedPhotos] = useState<string[] | null>(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -58,16 +58,13 @@ export default function MyDonationsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this donation?')) return;
     setDeletingId(id);
-    try {
-      const res = await fetch(`/api/item-donation/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
-      toast.success('Donation deleted successfully');
-      refetch();
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to delete donation');
-    } finally {
-      setDeletingId(null);
+    try{
+      const response = await deleteMyDonations(id).unwrap()
+      if(response.success){
+        toast.success(response.message)
+      }
+    }catch(error){
+      console.log(error)
     }
   };
 
