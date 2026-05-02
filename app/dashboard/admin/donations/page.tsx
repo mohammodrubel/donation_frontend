@@ -9,13 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function Page() {
   const { data, isLoading, isError } = useGetDonationsQuery(undefined);
-
-  if (isLoading) {
-    return <div className="p-6">Loading...</div>;
-  }
 
   if (isError) {
     return <div className="p-6 text-red-500">Something went wrong</div>;
@@ -43,14 +40,25 @@ function Page() {
           </TableHeader>
 
           <TableBody>
-            {donations.length > 0 ? (
+            {isLoading ? (
+              // Skeleton rows
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-10 w-10 rounded-md" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                </TableRow>
+              ))
+            ) : donations.length > 0 ? (
               donations.map((item: any, index: number) => (
                 <TableRow key={item.id}>
                   <TableCell>{index + 1}</TableCell>
-
                   <TableCell>{item.campaign?.title}</TableCell>
-
-                  {/* ✅ Campaign Image */}
                   <TableCell>
                     <img
                       src={item.campaign?.image || "/placeholder.png"}
@@ -58,13 +66,9 @@ function Page() {
                       className="h-10 w-10 rounded-md object-cover"
                     />
                   </TableCell>
-
                   <TableCell>{item.donorName}</TableCell>
-
                   <TableCell>{item.donorEmail}</TableCell>
-
                   <TableCell>${item.amount}</TableCell>
-
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded text-xs ${
@@ -76,7 +80,6 @@ function Page() {
                       {item.status}
                     </span>
                   </TableCell>
-
                   <TableCell>
                     {new Date(item.createdAt).toLocaleDateString()}
                   </TableCell>

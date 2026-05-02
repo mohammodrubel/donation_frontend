@@ -3,7 +3,8 @@ export const tagTypes = {
   campaign:"Campaign",
   itemDonation:"itemDonation",
   donation:"donation",
-  payment:"payment"
+  payment:"payment",
+  banner:"banner"
 };
 
 export const tagTypesList = [
@@ -11,5 +12,6 @@ export const tagTypesList = [
   tagTypes.campaign,
   tagTypes.itemDonation,
   tagTypes.donation,
-  tagTypes.payment
+  tagTypes.payment,
+  tagTypes.banner
 ];

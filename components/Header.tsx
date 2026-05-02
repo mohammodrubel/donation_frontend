@@ -51,14 +51,11 @@ export function Header() {
             <Link href="/campaigns" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
               Campaigns
             </Link>
-            {/* <Link href="/donate-items" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
-              Donate Items
-            </Link> */}
-            <Link href="/donate-money" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
-              Donate Money
-            </Link>
             <Link href="/fundraiser" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
               Start Fundraiser
+            </Link>
+            <Link href="/contact" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
+              Contact us
             </Link>
           </nav>
 

@@ -25,7 +25,6 @@ export const adminSidebarItems: SidebarItem[] = [
   { icon: Package, label: 'Item Donations', href: '/dashboard/admin/items' },
   { icon: Image, label: 'Banner', href: '/dashboard/admin/banner' },
   { icon: Megaphone, label: 'My Campaigns', href: '/dashboard/admin/campaigns' },
-  { icon: Heart, label: 'Start Campaign', href: '/dashboard/admin/create-campaign' },
   { icon: Bell, label: 'Notifications', href: '/dashboard/admin/notifications' },
   { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
 ]
