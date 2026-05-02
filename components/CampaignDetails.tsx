@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';          // added for redirect
+import { useSelector } from 'react-redux';            // added to read auth state
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -103,12 +105,33 @@ function getAvatarColor(name: string) {
 }
 
 export function CampaignDetails({ id }: CampaignDetailsProps) {
+  const router = useRouter();
+  // Adjust the selector path to match your actual auth state (e.g., state.auth.user)
+  const isAuthenticated = useSelector((state: any) => !!state.auth?.user);
+
   const { data, isLoading, error } = useGetSingleCampaignQuery(id);
   const campaign = data?.data;
 
   const [showForm, setShowForm] = useState(false);
   const [showAllDonors, setShowAllDonors] = useState(false);
   const [showAllItems, setShowAllItems] = useState(false);
+
+  // Handlers with auth check
+  const handleDonateMoney = () => {
+    if (!isAuthenticated) {
+      router.push('/auth');
+      return;
+    }
+    router.push(`/donate-money?campaign=${campaign?.id}`);
+  };
+
+  const handleDonateItemsClick = () => {
+    if (!isAuthenticated) {
+      router.push('/auth');
+      return;
+    }
+    setShowForm(!showForm);
+  };
 
   if (isLoading) {
     return <CampaignDetailsSkeleton />;
@@ -422,9 +445,9 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
             )}
           </div>
 
-          {/* right sidebar (unchanged, but kept for completeness) */}
+          {/* right sidebar */}
           <div className="space-y-6">
-            {/* progress card (same as before) */}
+            {/* progress card */}
             <div className="border rounded-2xl p-6 bg-white shadow-sm">
               <div className="space-y-5">
                 <div>
@@ -457,11 +480,10 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                     <p className="text-xs text-gray-500">Supporters</p>
                   </div>
                 </div>
-                <Button asChild className="w-full">
-                  <Link href={`/donate-money?campaign=${campaign.id}`}>
-                    <Heart className="w-4 h-4 mr-2" />
-                    Donate Money
-                  </Link>
+                {/* Money Donation Button with auth check */}
+                <Button className="w-full" onClick={handleDonateMoney}>
+                  <Heart className="w-4 h-4 mr-2" />
+                  Donate Money
                 </Button>
               </div>
             </div>
@@ -480,10 +502,11 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                     </div>
                   ))}
                 </div>
+                {/* Item Donation Button with auth check */}
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => setShowForm(!showForm)}
+                  onClick={handleDonateItemsClick}
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Donate Items

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
@@ -17,8 +17,10 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { adminSidebarItems, userSidebarItems } from '@/components/sidebar/sidebar'
-// Import your logout action (if you have one)
-// import { logout } from '@/store/authSlice'
+import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
+
+// Adjust the path to your RootState type
+// import { RootState } from '@/lib/reudx/store'
 
 export default function DashboardLayout({
   children,
@@ -30,21 +32,40 @@ export default function DashboardLayout({
   const router = useRouter()
   const dispatch = useDispatch()
 
-  // Get user from Redux store
+  // Get user and loading state from Redux
   const user = useSelector((state: any) => state?.auth?.user)
-  const role = user?.role === 'ADMIN' ? 'ADMIN' : 'USER'
+  // Replace 'isLoading' with your actual loading flag (e.g., state.auth.status === 'loading')
+  const isLoading = useSelector((state: any) => state?.auth?.isLoading)
 
-  // Choose correct sidebar based on role
+  const role = user?.role === 'ADMIN' ? 'ADMIN' : 'USER'
   const sidebarItems = role === 'ADMIN' ? adminSidebarItems : userSidebarItems
 
-  const handleLogout = () => {
-    // Clear app-specific data
-    localStorage.removeItem('token') // adjust to your actual key
-    // Dispatch logout action to clear Redux state
-    // dispatch(logout())
-    router.push('/auth')
+  // Auto-logout if no user exists after loading finishes
+  useEffect(() => {
+    if (!isLoading && !user) {
+      dispatch(logout())
+      router.push('/auth') // Redirect to your login page
+    }
+  }, [user, isLoading, dispatch, router])
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
+  // If still no user after loading (the useEffect will redirect, but this prevents flash)
+  if (!user) {
+    return null
+  }
+
+  // --- Original layout continues here (unchanged) ---
   return (
     <div className="h-screen bg-muted/30 flex overflow-hidden">
       {/* Sidebar */}
@@ -108,7 +129,10 @@ export default function DashboardLayout({
         <div className="absolute bottom-0 left-0 right-0 border-t p-4 bg-background">
           <Button
             variant="ghost"
-            onClick={handleLogout}
+            onClick={() => {
+              dispatch(logout())
+              router.push('/login')
+            }}
             className="w-full justify-start rounded-xl"
           >
             <LogOut className="mr-2 size-4" />

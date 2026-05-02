@@ -64,10 +64,13 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-3">
             {
-              user ? <Button onClick={handleLogout} variant="outline" asChild><Link href="/#">Logout</Link></Button>
+              user ? <>
+              <Button onClick={handleLogout} variant="outline" asChild><Link href="/#">Logout</Link></Button>
+              <Button asChild className="bg-primary hover:bg-primary/90"><Link href="/dashboard">Dashboard</Link></Button>
+              </>
               :
             <Button variant="outline" asChild><Link href="/auth">Sign In</Link></Button>}
-            <Button asChild className="bg-primary hover:bg-primary/90"><Link href="/donate-money">Donate Now</Link></Button>
+            
           </div>
 
           <button

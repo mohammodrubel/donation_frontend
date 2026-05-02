@@ -33,7 +33,7 @@ export const adminSidebarItems: SidebarItem[] = [
 // User (donor) sidebar items
 export const userSidebarItems: SidebarItem[] = [
   { icon: Home, label: 'Overview', href: '/dashboard' },
-  { icon: HandHeart, label: 'My Donations', href: '/dashboard/user/my-donations' },
-  { icon: Receipt, label: 'Payment History', href: '/dashboard/user/payment-history' },
+  { icon: HandHeart, label: 'My Donations Item', href: '/dashboard/user/my-donations' },
+  { icon: Receipt, label: 'Donations History', href: '/dashboard/user/payment-history' },
   { icon: Bell, label: 'Profile', href: '/dashboard/user/profile' },
 ]

@@ -17,7 +17,7 @@ export const donationApi = baseApi.injectEndpoints({
     // ✅ Get all donations (admin)
     getDonations: builder.query({
       query: () => ({
-        url: "/donation",
+        url: "/donation/all",
         method: "GET",
       }),
       providesTags: [tagTypes.donation],
