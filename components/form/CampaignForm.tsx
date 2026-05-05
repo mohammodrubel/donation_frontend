@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/share/rich-text-editor";
 import { LANG_LABELS, SUPPORTED_LANGS, DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { Flag } from "@/lib/i18n/Flag";
+import { X } from "lucide-react";
 
 export interface CampaignTranslationRow {
   lang: Lang;
@@ -26,6 +28,7 @@ export interface CampaignFormData {
   goalAmount: number;
   collectedAmount?: number;
   image: string;
+  icons: string[];
   featured: boolean;
   endDate: string;
   tags: string[];
@@ -35,7 +38,11 @@ export interface CampaignFormData {
 
 interface Props {
   initialData: CampaignFormData;
-  onSubmit: (data: CampaignFormData, file: File | null) => Promise<void>;
+  onSubmit: (
+    data: CampaignFormData,
+    file: File | null,
+    iconFiles: File[]
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -78,6 +85,10 @@ export function CampaignForm({
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState(initialData.image);
 
+  const [keptIcons, setKeptIcons] = useState<string[]>(initialData.icons || []);
+  const [iconFiles, setIconFiles] = useState<File[]>([]);
+  const iconPreviewsRef = useRef<string[]>([]);
+
   const [tagInput, setTagInput] = useState("");
   const [itemInput, setItemInput] = useState("");
   const [acceptsMoney, setAcceptsMoney] = useState<boolean>(
@@ -89,7 +100,16 @@ export function CampaignForm({
     setPreview(initialData.image);
     setLangForms(hydrateLangForms(initialData));
     setAcceptsMoney((initialData.goalAmount ?? 0) > 0);
+    setKeptIcons(initialData.icons || []);
+    setIconFiles([]);
   }, [initialData]);
+
+  useEffect(() => {
+    return () => {
+      iconPreviewsRef.current.forEach((u) => URL.revokeObjectURL(u));
+      iconPreviewsRef.current = [];
+    };
+  }, []);
 
   const updateField = (
     key: keyof CampaignFormData,
@@ -151,6 +171,22 @@ export function CampaignForm({
     setPreview(URL.createObjectURL(selected));
   };
 
+  const handleIconsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    if (selected.length === 0) return;
+    setIconFiles((prev) => [...prev, ...selected]);
+    selected.forEach((f) => iconPreviewsRef.current.push(URL.createObjectURL(f)));
+    e.target.value = "";
+  };
+
+  const removeKeptIcon = (url: string) => {
+    setKeptIcons((prev) => prev.filter((u) => u !== url));
+  };
+
+  const removeNewIcon = (idx: number) => {
+    setIconFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -183,9 +219,11 @@ export function CampaignForm({
         description: en.description,
         story: en.story,
         image: preview,
+        icons: keptIcons,
         translations,
       },
-      file
+      file,
+      iconFiles
     );
   };
 
@@ -203,7 +241,7 @@ export function CampaignForm({
             >
               {SUPPORTED_LANGS.map((lang) => (
                 <TabsTrigger key={lang} value={lang} className="gap-2">
-                  <span aria-hidden>{LANG_LABELS[lang].flag}</span>
+                  <Flag lang={lang} />
                   <span>{LANG_LABELS[lang].native}</span>
                 </TabsTrigger>
               ))}
@@ -384,6 +422,62 @@ export function CampaignForm({
           {preview && (
             <img src={preview} alt="Preview" className="w-40 h-40 rounded object-cover" />
           )}
+        </CardContent>
+      </Card>
+
+      {/* Icons */}
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          <h2 className="font-semibold text-lg">Icons</h2>
+
+          {(keptIcons.length > 0 || iconFiles.length > 0) && (
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+              {keptIcons.map((url) => (
+                <div key={url} className="relative group">
+                  <img
+                    src={url}
+                    alt=""
+                    className="w-full h-20 object-cover rounded-md border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeKeptIcon(url)}
+                    className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove icon"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {iconFiles.map((f, i) => (
+                <div key={`${f.name}-${i}`} className="relative group">
+                  <img
+                    src={URL.createObjectURL(f)}
+                    alt=""
+                    className="w-full h-20 object-cover rounded-md border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeNewIcon(i)}
+                    className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove icon"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleIconsChange}
+          />
+          <p className="text-xs text-muted-foreground">
+            Upload one or more icon images. They will appear on the campaign card.
+          </p>
         </CardContent>
       </Card>
 

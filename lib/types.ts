@@ -9,7 +9,8 @@ export interface CampaignFormData {
   goalAmount: number;
   endDate: string;
   image: string;
-  tags: string;      
+  icons: string[];
+  tags: string;
   featured: boolean;
 }
 
@@ -27,6 +28,7 @@ export interface Campaign {
   collectedAmount: number;
 
   image: string;
+  icons: string[];
 
   status: "pending" | "active" | "completed" | "rejected" | string;
 

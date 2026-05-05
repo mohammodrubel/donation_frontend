@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/share/rich-text-editor";
 import { LANG_LABELS, SUPPORTED_LANGS, DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { Flag } from "@/lib/i18n/Flag";
 
 export interface CharityTranslationRow {
   lang: Lang;
@@ -267,7 +268,7 @@ export default function CharityForm({
             >
               {SUPPORTED_LANGS.map((lang) => (
                 <TabsTrigger key={lang} value={lang} className="gap-2">
-                  <span aria-hidden>{LANG_LABELS[lang].flag}</span>
+                  <Flag lang={lang} />
                   <span>{LANG_LABELS[lang].native}</span>
                 </TabsTrigger>
               ))}

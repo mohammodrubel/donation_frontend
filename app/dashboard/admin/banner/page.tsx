@@ -28,6 +28,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LANG_LABELS, SUPPORTED_LANGS, DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { Flag } from "@/lib/i18n/Flag";
 import { PaginationBar } from "@/components/share/PaginationBar";
 
 import { Loader2, Pencil, Trash2, CheckCircle, XCircle, Plus, ImagePlus, Search } from "lucide-react";
@@ -237,7 +238,7 @@ export default function BannerManagement() {
       <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${SUPPORTED_LANGS.length}, minmax(0, 1fr))` }}>
         {SUPPORTED_LANGS.map((lang) => (
           <TabsTrigger key={lang} value={lang} className="gap-2">
-            <span aria-hidden>{LANG_LABELS[lang].flag}</span>
+            <Flag lang={lang} />
             <span>{LANG_LABELS[lang].native}</span>
           </TabsTrigger>
         ))}

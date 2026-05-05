@@ -16,7 +16,11 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData: CampaignFormData;
-  onSubmit: (data: CampaignFormData, file: File | null) => Promise<void>;
+  onSubmit: (
+    data: CampaignFormData,
+    file: File | null,
+    iconFiles: File[]
+  ) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }

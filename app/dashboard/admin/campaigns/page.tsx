@@ -77,6 +77,7 @@ export default function Page() {
     goalAmount: 0,
     collectedAmount: 0,
     image: "",
+    icons: [],
     featured: false,
     endDate: "",
     tags: [],
@@ -100,6 +101,7 @@ export default function Page() {
       goalAmount: item.goalAmount || 0,
       collectedAmount: item.collectedAmount || 0,
       image: item.image || "",
+      icons: item.icons || [],
       featured: item.featured || false,
       endDate: item.endDate?.slice(0, 10) || "",
       tags: item.tags || [],
@@ -124,7 +126,8 @@ export default function Page() {
 
   const handleSubmit = async (
     formData: CampaignFormData,
-    file: File | null
+    file: File | null,
+    iconFiles: File[]
   ) => {
     try {
       const payload = new FormData();
@@ -141,6 +144,7 @@ export default function Page() {
         tags: formData.tags,
         acceptedItems: formData.acceptedItems,
         translations: formData.translations || [],
+        existingIcons: formData.icons || [],
       };
 
       payload.append("data", JSON.stringify(data));
@@ -148,6 +152,8 @@ export default function Page() {
       if (file) {
         payload.append("image", file);
       }
+
+      iconFiles.forEach((f) => payload.append("icons", f));
 
       if (formData.id) {
         await updateCampaign({

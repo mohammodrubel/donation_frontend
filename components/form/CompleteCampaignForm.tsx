@@ -9,6 +9,7 @@ import { RichTextEditor } from "@/components/share/rich-text-editor";
 import { Loader2, X } from "lucide-react";
 import { useCompleteCampaignMutation } from "@/lib/reudx/fetchers/campain/campainApi";
 import { LANG_LABELS, SUPPORTED_LANGS, DEFAULT_LANG, type Lang } from "@/lib/i18n/config";
+import { Flag } from "@/lib/i18n/Flag";
 import { toast } from "sonner";
 
 interface Props {
@@ -127,7 +128,7 @@ export function CompleteCampaignForm({
           >
             {SUPPORTED_LANGS.map((lang) => (
               <TabsTrigger key={lang} value={lang} className="gap-2">
-                <span aria-hidden>{LANG_LABELS[lang].flag}</span>
+                <Flag lang={lang} />
                 <span>{LANG_LABELS[lang].native}</span>
               </TabsTrigger>
             ))}

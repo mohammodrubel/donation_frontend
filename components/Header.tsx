@@ -45,8 +45,8 @@ export function Header() {
         {/* rest of your header content stays exactly the same */}
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="text-3xl font-extrabold tracking-tight">
-              Give<span className="text-primary">Hope</span>
+            <div className="text-3xl  font-extrabold tracking-tight">
+              DONAR
             </div>
           </Link>
 

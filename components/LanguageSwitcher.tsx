@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { LANG_LABELS, SUPPORTED_LANGS, type Lang } from "@/lib/i18n/config";
+import { Flag } from "@/lib/i18n/Flag";
 
 interface LanguageSwitcherProps {
   variant?: "icon" | "full";
@@ -27,16 +28,23 @@ export function LanguageSwitcher({ variant = "icon", className }: LanguageSwitch
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          size={variant === "icon" ? "icon" : "default"}
+          size={variant === "icon" ? "sm" : "default"}
           className={className}
-          aria-label={t("language.label")}
+          aria-label={`${t("language.label")}: ${current.native}`}
         >
           {variant === "icon" ? (
-            <Globe className="w-5 h-5" />
+            <span className="flex items-center gap-1.5">
+              <Flag lang={lang} />
+              <span className="text-xs font-semibold uppercase tracking-wide">
+                {lang}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+            </span>
           ) : (
             <span className="flex items-center gap-2">
-              <Globe className="w-4 h-4" />
+              <Flag lang={lang} />
               <span>{current.native}</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
             </span>
           )}
         </Button>
@@ -54,7 +62,7 @@ export function LanguageSwitcher({ variant = "icon", className }: LanguageSwitch
               className="flex items-center justify-between gap-3"
             >
               <span className="flex items-center gap-2">
-                <span aria-hidden>{meta.flag}</span>
+                <Flag lang={code} />
                 <span>{meta.native}</span>
               </span>
               {isActive && <Check className="w-4 h-4 text-primary" />}

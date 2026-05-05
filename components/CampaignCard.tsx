@@ -68,6 +68,25 @@ console.log(campaign)
           {plainDescription}
         </p>
 
+        {/* Icons */}
+        {campaign.icons && campaign.icons.length > 0 && (
+          <div className="flex items-center flex-wrap gap-2 mt-3">
+            {campaign.icons.slice(0, 6).map((icon, i) => (
+              <img
+                key={`${icon}-${i}`}
+                src={icon}
+                alt=""
+                className="w-8 h-8 rounded-md object-cover border border-gray-200 bg-white"
+              />
+            ))}
+            {campaign.icons.length > 6 && (
+              <span className="text-xs text-gray-400">
+                +{campaign.icons.length - 6}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Tags */}
         {campaign.tags && campaign.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
