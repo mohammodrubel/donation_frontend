@@ -1,19 +1,33 @@
-// components/campaign/CampaignListing.tsx
 'use client'
 
-import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
-import { Search, Filter, Calendar, Tag, Target, Clock, AlertCircle } from 'lucide-react'
+import { Search, Filter, Clock } from 'lucide-react'
 import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
-import { campaignCategories } from '@/lib/mockData'  // adjust import as needed
+import { campaignCategories } from '@/lib/mockData'
 import { CampaignCard } from './CampaignCard'
 import { CampaignSkeleton } from './CampaignSkeleton'
+import { PaginationBar } from './share/PaginationBar'
 import { Campaign } from '@/lib/types'
 
 
 export function CampaignListing() {
-  const { data, isLoading } = useGetCampaignsQuery(undefined)
+  const [page, setPage] = useState(1)
+  const [limit] = useState(9)
+  const [searchInput, setSearchInput] = useState('')
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput)
+      setPage(1)
+    }, 300)
+    return () => clearTimeout(t)
+  }, [searchInput])
+
+  const { data, isLoading } = useGetCampaignsQuery({ page, limit, search })
   const campaigns: Campaign[] = data?.data || []
+  const meta = data?.meta
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -33,17 +47,18 @@ export function CampaignListing() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
-        {/* SEARCH BAR (visual only) */}
+        {/* SEARCH BAR (live) */}
         <div className="relative max-w-md mb-8">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             placeholder="Search campaigns..."
             className="pl-10 rounded-full bg-white shadow-sm border-gray-200 focus:ring-primary/20"
-            readOnly
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 
-        {/* STATIC FILTER SECTION (visual only) */}
+        {/* Visual filter section (still static for now) */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-10">
           <div className="flex flex-wrap items-center gap-8">
             <div>
@@ -86,7 +101,7 @@ export function CampaignListing() {
         {/* CAMPAIGNS GRID */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
           {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => <CampaignSkeleton key={i} />)
+            ? Array.from({ length: limit }).map((_, i) => <CampaignSkeleton key={i} />)
             : campaigns.map((campaign) => {
                 const categoryObj = campaignCategories.find(c => c.id === campaign.category)
                 const categoryLabel = categoryObj?.name || campaign.category || 'Other'
@@ -94,15 +109,29 @@ export function CampaignListing() {
               })}
         </div>
 
-        {/* Empty state */}
         {!isLoading && campaigns.length === 0 && (
           <div className="text-center py-16">
             <div className="bg-gray-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-gray-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-700">No campaigns found</h3>
-            <p className="text-gray-500 mt-2">Check back later for new opportunities to make an impact.</p>
+            <p className="text-gray-500 mt-2">
+              {search ? `No matches for "${search}".` : 'Check back later for new opportunities to make an impact.'}
+            </p>
           </div>
+        )}
+
+        {meta && (
+          <PaginationBar
+            page={meta.page}
+            totalPages={meta.totalPages}
+            total={meta.total}
+            limit={meta.limit}
+            onPageChange={(p) => {
+              setPage(p)
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+          />
         )}
       </div>
     </div>

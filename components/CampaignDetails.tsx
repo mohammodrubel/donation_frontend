@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';          // added for redirect
 import { useSelector } from 'react-redux';            // added to read auth state
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -22,6 +23,7 @@ import {
   ChevronRight,
   Clock,
   Truck,
+  Trophy,
 } from 'lucide-react';
 
 import { campaignCategories } from '@/lib/mockData';
@@ -116,8 +118,23 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
   const [showAllDonors, setShowAllDonors] = useState(false);
   const [showAllItems, setShowAllItems] = useState(false);
 
+  const isCompleted = campaign?.status === 'completed';
+
+  const completedToastShownFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (isCompleted && campaign?.id && completedToastShownFor.current !== campaign.id) {
+      completedToastShownFor.current = campaign.id;
+      toast.success('This campaign has been completed', {
+        description: 'Donations are closed. See the success story below.',
+      });
+      if (showForm) setShowForm(false);
+    }
+  }, [isCompleted, campaign?.id, showForm]);
+
   // Handlers with auth check
   const handleDonateMoney = () => {
+    if (isCompleted) return;
+    if ((campaign?.goalAmount ?? 0) <= 0) return;
     if (!isAuthenticated) {
       router.push('/auth');
       return;
@@ -126,6 +143,7 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
   };
 
   const handleDonateItemsClick = () => {
+    if (isCompleted) return;
     if (!isAuthenticated) {
       router.push('/auth');
       return;
@@ -150,7 +168,10 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
     );
   }
 
-  const progressPercent = (campaign.collectedAmount / campaign.goalAmount) * 100;
+  const acceptsMoney = (campaign.goalAmount ?? 0) > 0;
+  const progressPercent = acceptsMoney
+    ? (campaign.collectedAmount / campaign.goalAmount) * 100
+    : 0;
   const daysLeft = getDaysLeft(campaign.endDate);
   const categoryKey = campaign.category?.toLowerCase() || 'other';
   const categoryLabel =
@@ -250,6 +271,52 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                 </div>
               </div>
             </div>
+
+            {/* success story (only when campaign is completed) */}
+            {isCompleted && (campaign.successStory || (campaign.successImages?.length ?? 0) > 0) && (
+              <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 sm:p-8 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-full bg-emerald-100 text-emerald-700">
+                    <Trophy className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-emerald-900">Success Story</h2>
+                    {campaign.completedAt && (
+                      <p className="text-xs text-emerald-700/80">
+                        Completed on {formatDate(campaign.completedAt)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {campaign.successStory && (
+                  <div
+                    className="prose prose-sm sm:prose-base max-w-none text-gray-800"
+                    dangerouslySetInnerHTML={{ __html: campaign.successStory }}
+                  />
+                )}
+
+                {campaign.successImages?.length > 0 && (
+                  <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {campaign.successImages.map((src: string, i: number) => (
+                      <a
+                        key={`${src}-${i}`}
+                        href={src}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block aspect-square rounded-lg overflow-hidden border border-emerald-100 bg-white"
+                      >
+                        <img
+                          src={src}
+                          alt={`Success image ${i + 1}`}
+                          className="w-full h-full object-cover hover:scale-[1.02] transition-transform"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* story & help */}
             <div className="space-y-6">
@@ -447,28 +514,38 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
 
           {/* right sidebar */}
           <div className="space-y-6">
-            {/* progress card */}
+            {/* progress / stats card */}
             <div className="border rounded-2xl p-6 bg-white shadow-sm">
               <div className="space-y-5">
-                <div>
-                  <p className="text-sm text-gray-500">Collected</p>
-                  <h3 className="text-4xl font-bold text-primary">
-                    ${(campaign.collectedAmount / 1000).toFixed(1)}K
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    of ${(campaign.goalAmount / 1000).toFixed(1)}K goal
-                  </p>
-                </div>
-                <div>
-                  <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
-                    <div
-                      className="h-3 bg-primary"
-                      style={{ width: `${Math.min(progressPercent, 100)}%` }}
-                    />
+                {acceptsMoney ? (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-500">Collected</p>
+                      <h3 className="text-4xl font-bold text-primary">
+                        ${(campaign.collectedAmount / 1000).toFixed(1)}K
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        of ${(campaign.goalAmount / 1000).toFixed(1)}K goal
+                      </p>
+                    </div>
+                    <div>
+                      <div className="h-3 rounded-full bg-gray-200 overflow-hidden">
+                        <div
+                          className="h-3 bg-primary"
+                          style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-sm mt-2 font-medium">{Math.round(progressPercent)}% funded</p>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <p className="text-sm text-gray-500">Campaign type</p>
+                    <h3 className="text-2xl font-bold text-primary">Items only</h3>
+                    <p className="text-sm text-gray-500">This campaign accepts item donations only.</p>
                   </div>
-                  <p className="text-sm mt-2 font-medium">{Math.round(progressPercent)}% funded</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                )}
+                <div className={`grid grid-cols-2 gap-4 ${acceptsMoney ? 'pt-4 border-t' : ''}`}>
                   <div>
                     <p className="text-2xl font-bold">{daysLeft}</p>
                     <p className="text-xs text-gray-500">Days Left</p>
@@ -480,11 +557,19 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                     <p className="text-xs text-gray-500">Supporters</p>
                   </div>
                 </div>
-                {/* Money Donation Button with auth check */}
-                <Button className="w-full" onClick={handleDonateMoney}>
-                  <Heart className="w-4 h-4 mr-2" />
-                  Donate Money
-                </Button>
+                {/* Money Donation Button — only when this campaign accepts money */}
+                {acceptsMoney && (
+                  <Button
+                    className="w-full"
+                    onClick={handleDonateMoney}
+                    disabled={isCompleted}
+                    aria-disabled={isCompleted}
+                    title={isCompleted ? 'This campaign is completed' : undefined}
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    {isCompleted ? 'Campaign Completed' : 'Donate Money'}
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -507,15 +592,18 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                   variant="outline"
                   className="w-full"
                   onClick={handleDonateItemsClick}
+                  disabled={isCompleted}
+                  aria-disabled={isCompleted}
+                  title={isCompleted ? 'This campaign is completed' : undefined}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Donate Items
+                  {isCompleted ? 'Campaign Completed' : 'Donate Items'}
                 </Button>
               </div>
             )}
 
             {/* item donation form */}
-            {showForm && (
+            {showForm && !isCompleted && (
               <ItemDonationForm
                 campaignId={campaign.id}
                 acceptedItems={campaign.acceptedItems || []}

@@ -5,24 +5,25 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Heart, Users, TrendingUp, CheckCircle, Loader2 } from 'lucide-react';
 import { useGetBannersQuery } from '@/lib/reudx/fetchers/banner/bannerApi';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export function HeroSection() {
+  const { t } = useTranslation();
   const { data, isLoading } = useGetBannersQuery({});
   const banners = data?.data || [];
   const activeBanner = banners.find((banner: any) => banner.isActive === true);
 
-  // Fallback static content (used when no active banner exists)
   const fallback = {
-    badge: 'Verified Charity Platform',
-    title: 'Bridge the Gap,',
-    gradientText: 'Change Lives',
-    description: 'Join thousands of donors and fundraisers making a real impact. Donate money, items, or start your own campaign – 100% transparent.',
-    image: '/images/hero-placeholder.jpg', // replace with your default image path
+    badge: t('hero.badge'),
+    title: t('hero.title'),
+    gradientText: t('hero.gradient'),
+    description: t('hero.description'),
+    image: '/images/hero-placeholder.jpg',
   };
 
   const badgeText = activeBanner?.short_title || fallback.badge;
   const mainTitle = activeBanner?.title || fallback.title;
-  const gradientPart = activeBanner?.title ? '' : fallback.gradientText; // if banner has title, we don't need extra gradient text
+  const gradientPart = activeBanner?.title ? '' : fallback.gradientText;
   const descriptionText = activeBanner?.description || fallback.description;
   const imageUrl = activeBanner?.photo || fallback.image;
 
@@ -61,24 +62,24 @@ export function HeroSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button asChild size="lg" className="rounded-full">
-                <Link href="/campaigns">Explore Campaigns</Link>
+                <Link href="/campaigns">{t('hero.exploreCampaigns')}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link href="/start-fundraiser">Start Fundraising</Link>
+                <Link href="/start-fundraiser">{t('hero.startFundraising')}</Link>
               </Button>
             </div>
             <div className="flex items-center gap-6 justify-center lg:justify-start text-sm text-foreground/60">
               <div className="flex items-center gap-1">
                 <Heart className="w-4 h-4 text-primary" />
-                <span>500+ Campaigns</span>
+                <span>{t('hero.statCampaigns')}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4 text-primary" />
-                <span>10k+ Donors</span>
+                <span>{t('hero.statDonors')}</span>
               </div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-4 h-4 text-primary" />
-                <span>৳50L+ Raised</span>
+                <span>{t('hero.statRaised')}</span>
               </div>
             </div>
           </div>
@@ -86,7 +87,7 @@ export function HeroSection() {
           <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
             <Image
               src={imageUrl}
-              alt={activeBanner?.title || 'Helping community'}
+              alt={activeBanner?.title || t('hero.imageAlt')}
               fill
               className="object-cover"
               priority

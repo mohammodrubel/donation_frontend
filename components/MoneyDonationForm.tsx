@@ -81,6 +81,11 @@ export function MoneyDonationForm() {
         return
       }
 
+      if (selectedCampaignData && (selectedCampaignData.goalAmount ?? 0) <= 0) {
+        setSubmitError('This campaign accepts item donations only.')
+        return
+      }
+
       const donationData = {
         amount: finalAmount,
         donorName,

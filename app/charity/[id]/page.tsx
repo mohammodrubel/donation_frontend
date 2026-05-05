@@ -1,9 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import React, { useMemo, useState } from "react";
-import { demoCharities } from "../data";
-import { Charity } from "../charity_type";
+import React, { useState } from "react";
 import {
   MapPin,
   Mail,
@@ -12,6 +10,7 @@ import {
   Globe,
   ArrowLeft,
   Heart,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -21,7 +20,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { CharityForm } from "@/components/form/charityForm";
 import {
   Dialog,
   DialogContent,
@@ -31,39 +29,48 @@ import {
 } from "@/components/ui/dialog";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { CharityInquiryForm } from "@/components/form/charityInquiryForm";
+import {
+  useGetCharitiesQuery,
+  useGetSingleCharityQuery,
+} from "@/lib/reudx/fetchers/charity/charityApi";
 
 export default function CharityDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const charityId = params.id as string;
-  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
 
-  const charity = useMemo(() => {
-    return demoCharities.find((c: Charity) => c.id === charityId && c.active);
-  }, [charityId]);
+  const { data: singleData, isLoading, error } = useGetSingleCharityQuery(charityId);
+  const charity = singleData?.data;
 
-  const relatedCharities = useMemo(() => {
-    if (!charity) return [];
-    return demoCharities
-      .filter((c: Charity) => c.id !== charity.id && c.active)
-      .slice(0, 8);
-  }, [charity]);
+  const { data: listData } = useGetCharitiesQuery({ page: 1, limit: 8 });
+  const relatedCharities = (listData?.data || []).filter((c: any) => c.id !== charityId);
 
-  if (!charity) {
+  if (isLoading) {
+    return (
+      <div>
+        <Header />
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !charity || !charity.active) {
     return (
       <div>
         <Header />
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-4">🔍</div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-              Charity Not Found
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Charity Not Found</h1>
             <p className="text-gray-600 mb-6">
               The charity you're looking for doesn't exist or is no longer active.
             </p>
             <button
-              onClick={() => router.push("/charities")}
+              onClick={() => router.push("/charity")}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -115,9 +122,10 @@ export default function CharityDetailsPage() {
                   )}
                 </div>
                 {charity.mission && (
-                  <p className="text-emerald-700 text-lg italic mt-2">
-                    “{charity.mission}”
-                  </p>
+                  <p
+                    className="text-emerald-700 text-lg italic mt-2"
+                    dangerouslySetInnerHTML={{ __html: charity.mission }}
+                  />
                 )}
               </div>
               <div className="flex gap-3">
@@ -133,7 +141,7 @@ export default function CharityDetailsPage() {
                   </a>
                 )}
                 <button
-                  onClick={() => setIsSupportModalOpen(true)}
+                  onClick={() => setIsInquiryOpen(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition"
                 >
                   <Heart className="w-4 h-4" />
@@ -144,10 +152,11 @@ export default function CharityDetailsPage() {
 
             {/* Description */}
             <div className="bg-white rounded-2xl shadow-sm p-6 mb-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                About Us
-              </h2>
-              <p className="text-gray-700 leading-relaxed">{charity.description}</p>
+              <h2 className="text-xl font-semibold text-gray-800 mb-3">About Us</h2>
+              <div
+                className="text-gray-700 leading-relaxed prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: charity.description || "" }}
+              />
             </div>
 
             {/* Contact Information */}
@@ -170,10 +179,7 @@ export default function CharityDetailsPage() {
                     <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Email</p>
-                      <a
-                        href={`mailto:${charity.email}`}
-                        className="text-emerald-600 hover:underline"
-                      >
+                      <a href={`mailto:${charity.email}`} className="text-emerald-600 hover:underline">
                         {charity.email}
                       </a>
                     </div>
@@ -184,10 +190,7 @@ export default function CharityDetailsPage() {
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-gray-500">Phone</p>
-                      <a
-                        href={`tel:${charity.phone}`}
-                        className="text-emerald-600 hover:underline"
-                      >
+                      <a href={`tel:${charity.phone}`} className="text-emerald-600 hover:underline">
                         {charity.phone}
                       </a>
                     </div>
@@ -200,11 +203,9 @@ export default function CharityDetailsPage() {
             {relatedCharities.length > 0 && (
               <div className="mt-12">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    You might also like
-                  </h2>
+                  <h2 className="text-2xl font-bold text-gray-800">You might also like</h2>
                   <Link
-                    href="/charities"
+                    href="/charity"
                     className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center gap-1"
                   >
                     View all
@@ -212,21 +213,15 @@ export default function CharityDetailsPage() {
                   </Link>
                 </div>
 
-                <Carousel
-                  opts={{
-                    align: "start",
-                    loop: true,
-                  }}
-                  className="w-full"
-                >
+                <Carousel opts={{ align: "start", loop: true }} className="w-full">
                   <CarouselContent className="-ml-4">
-                    {relatedCharities.map((related: Charity) => (
+                    {relatedCharities.map((related: any) => (
                       <CarouselItem
                         key={related.id}
                         className="pl-4 basis-full sm:basis-1/2 md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                       >
                         <Link
-                          href={`/charities/${related.id}`}
+                          href={`/charity/${related.id}`}
                           className="group block bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden h-full"
                         >
                           <div className="relative h-40 overflow-hidden">
@@ -246,9 +241,10 @@ export default function CharityDetailsPage() {
                                 <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                               )}
                             </div>
-                            <p className="text-gray-600 text-sm line-clamp-2">
-                              {related.description}
-                            </p>
+                            <div
+                              className="text-gray-600 text-sm line-clamp-2"
+                              dangerouslySetInnerHTML={{ __html: related.description || "" }}
+                            />
                             <div className="mt-3 text-emerald-600 text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                               Learn more
                               <ArrowLeft className="w-3 h-3 rotate-180" />
@@ -265,17 +261,22 @@ export default function CharityDetailsPage() {
             )}
           </div>
         </div>
-             <Footer />
-        {/* Support Modal - Full width */}
-        <Dialog open={isSupportModalOpen} onOpenChange={setIsSupportModalOpen}>
-          <DialogContent className="w-[95vw] max-w-[70vw] md:w-[90vw] md:max-w-[90vw] lg:w-[85vw] lg:max-w-[85vw] xl:w-[80vw] xl:max-w-[80vw] max-h-[90vh] overflow-y-auto">
+        <Footer />
+
+        {/* Inquiry Modal */}
+        <Dialog open={isInquiryOpen} onOpenChange={setIsInquiryOpen}>
+          <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Support {charity.name}</DialogTitle>
+              <DialogTitle>Contact {charity.name}</DialogTitle>
               <DialogDescription>
-                Fill out the form below to submit your support request or donation.
+                Send a message to this charity. The team will see it in their dashboard and reach out.
               </DialogDescription>
             </DialogHeader>
-            <CharityForm onSuccess={() => setIsSupportModalOpen(false)} />
+            <CharityInquiryForm
+              charityId={charity.id}
+              charityName={charity.name}
+              onSuccess={() => setIsInquiryOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>

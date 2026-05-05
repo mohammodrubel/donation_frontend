@@ -1,6 +1,5 @@
 'use client';
 
-import { campaigns, testimonials, stats, howItWorks, campaignCategories, partners } from '@/lib/mockData';
 import { HeroSection } from './HeroSection';
 import { StatsSection } from './StatsSection';
 import { FeaturedCampaigns } from './FeaturedCampaignsSection';
@@ -15,12 +14,12 @@ export function HomePage() {
   return (
     <main className="bg-white">
       <HeroSection />
-      <StatsSection stats={stats} />
-      <FeaturedCampaigns campaigns={campaigns} categories={campaignCategories} />
-      <HowItWorksSection steps={howItWorks} />
-      <TestimonialsSection testimonials={testimonials} />
-      <CharitySection/>
-      <PartnersSection partners={partners} />
+      <StatsSection />
+      <FeaturedCampaigns />
+      <HowItWorksSection />
+      <TestimonialsSection />
+      <CharitySection />
+      <PartnersSection />
       <FinalCTASection />
     </main>
   );

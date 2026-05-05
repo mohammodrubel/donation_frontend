@@ -1,24 +1,36 @@
+'use client';
+
 import Image from 'next/image';
 import { Star } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface Testimonial {
   text: string;
   name: string;
   role: string;
-  avatar: string;
+  avatar?: string;
 }
 
 interface TestimonialsSectionProps {
-  testimonials: Testimonial[];
+  testimonials?: Testimonial[];
 }
 
-export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
+const fallbackAvatars = [
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=21',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=22',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=23',
+];
+
+export function TestimonialsSection({ testimonials: testimonialsProp }: TestimonialsSectionProps) {
+  const { t, tArr } = useTranslation();
+  const testimonials = testimonialsProp ?? tArr<Testimonial>('testimonials.items');
+
   return (
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/5 to-transparent">
       <div className="max-w-6xl mx-auto">
         <div className="mb-12 text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">Success Stories</h2>
-          <p className="text-lg text-foreground/60">Real people making a real difference through DonateBridge</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">{t('testimonials.title')}</h2>
+          <p className="text-lg text-foreground/60">{t('testimonials.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -37,7 +49,7 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
               </p>
               <div className="flex items-center gap-4">
                 <Image
-                  src={testimonial.avatar}
+                  src={testimonial.avatar ?? fallbackAvatars[index % fallbackAvatars.length]}
                   alt={testimonial.name}
                   width={48}
                   height={48}

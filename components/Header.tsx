@@ -6,12 +6,15 @@ import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
+import { useTranslation } from '@/lib/i18n/useTranslation'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [animateHeader, setAnimateHeader] = useState(false)
   const dispatch = useDispatch()
   const user = useSelector((state)=> state?.auth?.user)
+  const { t } = useTranslation()
 
   const handleLogout = ()=>{
     dispatch(logout())
@@ -49,58 +52,58 @@ export function Header() {
 
           <nav className="hidden md:flex items-center gap-1">
             <Link href="/campaigns" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
-              Campaigns
+              {t('nav.campaigns')}
             </Link>
             <Link href="/fundraiser" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
-              Start Fundraiser
+              {t('nav.startFundraiser')}
             </Link>
             <Link href="/contact" className="px-4 py-2 text-foreground/70 hover:text-primary font-medium transition-colors">
-              Contact us
+              {t('nav.contactUs')}
             </Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             {
               user ? <>
-              <Button onClick={handleLogout} variant="outline" asChild><Link href="/#">Logout</Link></Button>
-              <Button asChild className="bg-primary hover:bg-primary/90"><Link href="/dashboard">Dashboard</Link></Button>
+              <Button onClick={handleLogout} variant="outline" asChild><Link href="/#">{t('common.logout')}</Link></Button>
+              <Button asChild className="bg-primary hover:bg-primary/90"><Link href="/dashboard">{t('common.dashboard')}</Link></Button>
               </>
               :
-            <Button variant="outline" asChild><Link href="/auth">Sign In</Link></Button>}
-            
+            <Button variant="outline" asChild><Link href="/auth">{t('common.signIn')}</Link></Button>}
+
           </div>
 
-          <button
-            className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="md:hidden flex items-center gap-1">
+            <LanguageSwitcher />
+            <button
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
         {isMenuOpen && (
           <nav className="md:hidden pb-4 border-t border-border/40 space-y-1 animate-in slide-in-from-top-2">
-            {/* ... mobile nav items (unchanged) ... */}
             <Link href="/campaigns" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
-              Campaigns
+              {t('nav.campaigns')}
             </Link>
-            {/* <Link href="/donate-items" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
-              Donate Items
-            </Link> */}
             <Link href="/donate-money" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
-              Donate Money
+              {t('nav.donateMoney')}
             </Link>
             <Link href="/fundraiser" className="block px-4 py-3 text-foreground/80 hover:bg-primary/5 rounded-lg transition-colors font-medium">
-              Start Fundraiser
+              {t('nav.startFundraiser')}
             </Link>
             <div className="px-4 py-3 space-y-2 border-t border-border/40 mt-2 pt-3">
               {
-                user ? 
-                <Button onClick={handleLogout} variant="outline" asChild className="w-full"><Link href="#">Logout</Link></Button> 
+                user ?
+                <Button onClick={handleLogout} variant="outline" asChild className="w-full"><Link href="#">{t('common.logout')}</Link></Button>
                 :
-              <Button variant="outline" asChild className="w-full"><Link href="/auth">Sign In</Link></Button>}
-              <Button asChild className="w-full bg-primary hover:bg-primary/90"><Link href="/donate-money">Donate Now</Link></Button>
+              <Button variant="outline" asChild className="w-full"><Link href="/auth">{t('common.signIn')}</Link></Button>}
+              <Button asChild className="w-full bg-primary hover:bg-primary/90"><Link href="/donate-money">{t('common.donateNow')}</Link></Button>
             </div>
           </nav>
         )}

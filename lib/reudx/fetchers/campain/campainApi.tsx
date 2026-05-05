@@ -1,6 +1,22 @@
 import { baseApi } from "../../api/baseApi";
 import { tagTypes } from "../../Tagtypes";
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+const buildQuery = (params?: PaginationParams) => {
+  if (!params) return "";
+  const sp = new URLSearchParams();
+  if (params.page) sp.set("page", String(params.page));
+  if (params.limit) sp.set("limit", String(params.limit));
+  if (params.search) sp.set("search", params.search);
+  const q = sp.toString();
+  return q ? `?${q}` : "";
+};
+
 export const campaignApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createCampaign: builder.mutation({
@@ -12,9 +28,9 @@ export const campaignApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.campaign],
     }),
 
-    getCampaigns: builder.query({
-      query: () => ({
-        url: "/campaign/all",
+    getCampaigns: builder.query<any, PaginationParams | undefined>({
+      query: (params) => ({
+        url: `/campaign/all${buildQuery(params)}`,
         method: "GET",
       }),
       providesTags: [tagTypes.campaign],
@@ -43,6 +59,15 @@ export const campaignApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.campaign],
     }),
+
+    completeCampaign: builder.mutation<any, { id: string; data: FormData }>({
+      query: ({ id, data }) => ({
+        url: `/campaign/${id}/complete`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.campaign],
+    }),
   }),
 });
 
@@ -52,4 +77,5 @@ export const {
   useGetSingleCampaignQuery,
   useUpdateCampaignMutation,
   useDeleteCampaignMutation,
+  useCompleteCampaignMutation,
 } = campaignApi;

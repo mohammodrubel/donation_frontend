@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import {
   Globe,
@@ -6,8 +8,11 @@ import {
   Mail,
   Heart
 } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function Footer() {
+  const { t } = useTranslation()
+
   return (
     <footer className="bg-gradient-to-b from-slate-900 to-slate-950 text-white mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,22 +22,22 @@ export function Footer() {
             <Heart className="w-8 h-8 text-primary mx-auto mb-4" />
 
             <h3 className="text-2xl sm:text-3xl font-bold mb-3">
-              Stay Updated on Impact
+              {t('footer.newsletterTitle')}
             </h3>
 
             <p className="text-white/70 mb-6">
-              Get news about campaigns and success stories directly to your inbox.
+              {t('footer.newsletterDesc')}
             </p>
 
             <div className="flex gap-2 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder="Your email address"
+                placeholder={t('common.yourEmail')}
                 className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-primary/50"
               />
 
               <button className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-                Subscribe
+                {t('common.subscribe')}
               </button>
             </div>
           </div>
@@ -48,18 +53,17 @@ export function Footer() {
                   D
                 </div>
 
-                <span className="font-bold text-lg">DonateBridge</span>
+                <span className="font-bold text-lg">{t('common.appName')}</span>
               </Link>
 
               <p className="text-sm text-white/60 leading-relaxed">
-                Connecting compassionate donors with verified campaigns creating
-                real impact in communities worldwide.
+                {t('footer.brandDesc')}
               </p>
             </div>
 
             {/* Explore */}
             <div>
-              <h4 className="font-semibold mb-4 text-white">Explore</h4>
+              <h4 className="font-semibold mb-4 text-white">{t('nav.explore')}</h4>
 
               <ul className="space-y-3 text-sm">
                 <li>
@@ -67,7 +71,7 @@ export function Footer() {
                     href="/campaigns"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Browse Campaigns
+                    {t('footer.browseCampaigns')}
                   </Link>
                 </li>
 
@@ -76,7 +80,7 @@ export function Footer() {
                     href="/donate-money"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Donate Money
+                    {t('nav.donateMoney')}
                   </Link>
                 </li>
 
@@ -85,7 +89,7 @@ export function Footer() {
                     href="/donate-items"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Donate Items
+                    {t('nav.donateItems')}
                   </Link>
                 </li>
 
@@ -94,7 +98,7 @@ export function Footer() {
                     href="/fundraiser"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Start Fundraiser
+                    {t('nav.startFundraiser')}
                   </Link>
                 </li>
               </ul>
@@ -102,7 +106,7 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h4 className="font-semibold mb-4 text-white">Company</h4>
+              <h4 className="font-semibold mb-4 text-white">{t('nav.company')}</h4>
 
               <ul className="space-y-3 text-sm">
                 <li>
@@ -110,7 +114,7 @@ export function Footer() {
                     href="/about"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    About Us
+                    {t('nav.aboutUs')}
                   </Link>
                 </li>
 
@@ -119,7 +123,7 @@ export function Footer() {
                     href="#"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    How It Works
+                    {t('nav.howItWorks')}
                   </Link>
                 </li>
 
@@ -128,7 +132,7 @@ export function Footer() {
                     href="/contact"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Contact Us
+                    {t('nav.contactUs')}
                   </Link>
                 </li>
 
@@ -137,7 +141,7 @@ export function Footer() {
                     href="#"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Blog
+                    {t('nav.blog')}
                   </Link>
                 </li>
               </ul>
@@ -145,7 +149,7 @@ export function Footer() {
 
             {/* Legal */}
             <div>
-              <h4 className="font-semibold mb-4 text-white">Legal</h4>
+              <h4 className="font-semibold mb-4 text-white">{t('nav.legal')}</h4>
 
               <ul className="space-y-3 text-sm">
                 <li>
@@ -153,7 +157,7 @@ export function Footer() {
                     href="/privacy"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Privacy Policy
+                    {t('nav.privacy')}
                   </Link>
                 </li>
 
@@ -162,7 +166,7 @@ export function Footer() {
                     href="/terms"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Terms of Service
+                    {t('nav.terms')}
                   </Link>
                 </li>
 
@@ -171,7 +175,7 @@ export function Footer() {
                     href="#"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Trust & Safety
+                    {t('nav.trustSafety')}
                   </Link>
                 </li>
 
@@ -180,7 +184,7 @@ export function Footer() {
                     href="#"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    Accessibility
+                    {t('nav.accessibility')}
                   </Link>
                 </li>
               </ul>
@@ -188,7 +192,7 @@ export function Footer() {
 
             {/* Support */}
             <div>
-              <h4 className="font-semibold mb-4 text-white">Support</h4>
+              <h4 className="font-semibold mb-4 text-white">{t('nav.support')}</h4>
 
               <ul className="space-y-3 text-sm">
                 <li>
@@ -197,7 +201,7 @@ export function Footer() {
                     className="text-white/70 hover:text-primary transition-colors flex items-center gap-2"
                   >
                     <Mail className="w-4 h-4" />
-                    Email Support
+                    {t('nav.emailSupport')}
                   </a>
                 </li>
 
@@ -206,7 +210,7 @@ export function Footer() {
                     href="/faq"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
-                    FAQ
+                    {t('nav.faq')}
                   </Link>
                 </li>
               </ul>
@@ -216,8 +220,7 @@ export function Footer() {
           {/* Bottom Section */}
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <p className="text-sm text-white/60">
-              © 2025 DonateBridge. All rights reserved. | Trusted by 45,000+
-              donors
+              {t('footer.copyright')}
             </p>
 
             <div className="flex gap-4">

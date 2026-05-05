@@ -10,6 +10,7 @@ import {
   User,
   HandHeart,
   Receipt,
+  Inbox,
 } from 'lucide-react'
 
 export interface SidebarItem {
@@ -25,8 +26,8 @@ export const adminSidebarItems: SidebarItem[] = [
   { icon: Package, label: 'Item Donations', href: '/dashboard/admin/items' },
   { icon: Image, label: 'Banner', href: '/dashboard/admin/banner' },
   { icon: Megaphone, label: 'My Campaigns', href: '/dashboard/admin/campaigns' },
-  { icon: Bell, label: 'Notifications', href: '/dashboard/admin/notifications' },
-  { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
+  { icon: Settings, label: 'Charity', href: '/dashboard/admin/charity' },
+  { icon: Inbox, label: 'Inquiries', href: '/dashboard/admin/inquiries' },
 ]
 
 // User (donor) sidebar items

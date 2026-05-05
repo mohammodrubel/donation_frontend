@@ -1,4 +1,7 @@
+'use client';
+
 import { Heart, Smile, TrendingUp, Users } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface Stat {
   value: string;
@@ -6,10 +9,13 @@ interface Stat {
 }
 
 interface StatsSectionProps {
-  stats: Stat[];
+  stats?: Stat[];
 }
 
-export function StatsSection({ stats }: StatsSectionProps) {
+export function StatsSection({ stats: statsProp }: StatsSectionProps) {
+  const { tArr } = useTranslation();
+  const stats = statsProp ?? tArr<Stat>('stats.items');
+
   return (
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/5 to-transparent">
       <div className="max-w-6xl mx-auto">

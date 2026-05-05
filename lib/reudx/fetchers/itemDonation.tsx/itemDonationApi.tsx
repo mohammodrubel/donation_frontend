@@ -1,6 +1,22 @@
 import { baseApi } from "../../api/baseApi";
 import { tagTypes } from "../../Tagtypes";
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+const buildQuery = (params?: PaginationParams) => {
+  if (!params) return "";
+  const sp = new URLSearchParams();
+  if (params.page) sp.set("page", String(params.page));
+  if (params.limit) sp.set("limit", String(params.limit));
+  if (params.search) sp.set("search", params.search);
+  const q = sp.toString();
+  return q ? `?${q}` : "";
+};
+
 export const itemDonationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createItemDonation: builder.mutation({
@@ -12,16 +28,17 @@ export const itemDonationApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.campaign],
     }),
 
-    getItemDonations: builder.query({
-      query: () => ({
-        url: "/item-donation/all",
+    getItemDonations: builder.query<any, PaginationParams | undefined>({
+      query: (params) => ({
+        url: `/item-donation/all${buildQuery(params)}`,
         method: "GET",
       }),
       providesTags: [tagTypes.itemDonation],
     }),
-    getMyDonations: builder.query({
-      query: () => ({
-        url: "/item-donation/my",
+
+    getMyDonations: builder.query<any, PaginationParams | undefined>({
+      query: (params) => ({
+        url: `/item-donation/my${buildQuery(params)}`,
         method: "GET",
       }),
       providesTags: [tagTypes.itemDonation],
@@ -59,5 +76,5 @@ export const {
   useGetSingleItemDonationQuery,
   useUpdateItemDonationMutation,
   useDeleteItemDonationMutation,
-  useGetMyDonationsQuery
+  useGetMyDonationsQuery,
 } = itemDonationApi;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useGetDonationsQuery } from "@/lib/reudx/fetchers/donation/donationApi";
 import {
   Table,
@@ -10,19 +11,47 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { PaginationBar } from "@/components/share/PaginationBar";
 
 function Page() {
-  const { data, isLoading, isError } = useGetDonationsQuery(undefined);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const { data, isLoading, isError } = useGetDonationsQuery({ page, limit, search });
 
   if (isError) {
     return <div className="p-6 text-red-500">Something went wrong</div>;
   }
 
   const donations = data?.data || [];
+  const meta = data?.meta;
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-4">All Donations</h2>
+    <div className="p-6 space-y-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <h2 className="text-xl font-semibold">All Donations</h2>
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search donor, email, transaction…"
+            className="pl-8 w-full sm:w-72"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+      </div>
 
       <div className="rounded-xl border p-4 overflow-x-auto">
         <Table>
@@ -41,7 +70,6 @@ function Page() {
 
           <TableBody>
             {isLoading ? (
-              // Skeleton rows
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell><Skeleton className="h-5 w-8" /></TableCell>
@@ -57,7 +85,7 @@ function Page() {
             ) : donations.length > 0 ? (
               donations.map((item: any, index: number) => (
                 <TableRow key={item.id}>
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{(page - 1) * limit + index + 1}</TableCell>
                   <TableCell>{item.campaign?.title}</TableCell>
                   <TableCell>
                     <img
@@ -95,6 +123,16 @@ function Page() {
           </TableBody>
         </Table>
       </div>
+
+      {meta && (
+        <PaginationBar
+          page={meta.page}
+          totalPages={meta.totalPages}
+          total={meta.total}
+          limit={meta.limit}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }

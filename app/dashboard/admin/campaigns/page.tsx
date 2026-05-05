@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CampaignFormModal } from "@/components/CampaignFormModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search, CheckCircle } from "lucide-react";
 
 import {
   Table,
@@ -15,6 +17,14 @@ import {
 } from "@/components/ui/table";
 
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
   useGetCampaignsQuery,
   useCreateCampaignMutation,
   useDeleteCampaignMutation,
@@ -22,12 +32,28 @@ import {
 } from "@/lib/reudx/fetchers/campain/campainApi";
 
 import { CampaignFormData } from "@/components/form/CampaignForm";
+import { CompleteCampaignForm } from "@/components/form/CompleteCampaignForm";
+import { PaginationBar } from "@/components/share/PaginationBar";
 
 export default function Page() {
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState<CampaignFormData | null>(null);
+  const [completing, setCompleting] = useState<any | null>(null);
 
-  const { data, isLoading, refetch } = useGetCampaignsQuery(undefined);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const { data, isLoading, refetch } = useGetCampaignsQuery({ page, limit, search });
 
   const [createCampaign, { isLoading: createLoading }] =
     useCreateCampaignMutation();
@@ -39,6 +65,7 @@ export default function Page() {
     useDeleteCampaignMutation();
 
   const campaigns = data?.data || [];
+  const meta = data?.meta;
 
   const emptyCampaign: CampaignFormData = {
     id: "",
@@ -54,6 +81,7 @@ export default function Page() {
     endDate: "",
     tags: [],
     acceptedItems: [],
+    translations: [],
   };
 
   const handleCreate = () => {
@@ -76,6 +104,7 @@ export default function Page() {
       endDate: item.endDate?.slice(0, 10) || "",
       tags: item.tags || [],
       acceptedItems: item.acceptedItems || [],
+      translations: item.translations || [],
     });
 
     setOpen(true);
@@ -111,6 +140,7 @@ export default function Page() {
         featured: formData.featured,
         tags: formData.tags,
         acceptedItems: formData.acceptedItems,
+        translations: formData.translations || [],
       };
 
       payload.append("data", JSON.stringify(data));
@@ -141,10 +171,21 @@ export default function Page() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-2xl font-bold">Campaign List</h1>
 
-        <Button onClick={handleCreate}>+ Create Campaign</Button>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search campaigns…"
+              className="pl-8 w-full sm:w-64"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleCreate}>+ Create Campaign</Button>
+        </div>
       </div>
 
       <CampaignFormModal
@@ -195,7 +236,13 @@ export default function Page() {
                   <TableCell>${item.goalAmount}</TableCell>
 
                   <TableCell>
-                    <Badge>{item.status}</Badge>
+                    {item.status === "completed" ? (
+                      <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">
+                        completed
+                      </Badge>
+                    ) : (
+                      <Badge>{item.status}</Badge>
+                    )}
                   </TableCell>
 
                   <TableCell>
@@ -210,6 +257,18 @@ export default function Page() {
                     >
                       Edit
                     </Button>
+
+                    {item.status !== "completed" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                        onClick={() => setCompleting(item)}
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 mr-1" />
+                        Complete
+                      </Button>
+                    )}
 
                     <Button
                       size="sm"
@@ -232,6 +291,42 @@ export default function Page() {
           </TableBody>
         </Table>
       </div>
+
+      {meta && (
+        <PaginationBar
+          page={meta.page}
+          totalPages={meta.totalPages}
+          total={meta.total}
+          limit={meta.limit}
+          onPageChange={setPage}
+        />
+      )}
+
+      <Dialog open={!!completing} onOpenChange={(o) => !o && setCompleting(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Mark Campaign as Successful</DialogTitle>
+            <DialogDescription>
+              {completing?.title}
+            </DialogDescription>
+          </DialogHeader>
+          {completing && (
+            <CompleteCampaignForm
+              campaignId={completing.id}
+              initialSuccessStory={completing.successStory || ""}
+              initialSuccessImages={completing.successImages || []}
+              initialTranslations={(completing.translations || []).map((t: any) => ({
+                lang: t.lang,
+                successStory: t.successStory,
+              }))}
+              onSuccess={() => {
+                setCompleting(null);
+                refetch();
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

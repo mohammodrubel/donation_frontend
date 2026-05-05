@@ -1,12 +1,16 @@
+'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { MapPin, Mail, Phone, CheckCircle, ExternalLink } from 'lucide-react';
-import { demoCharities } from '@/app/charity/data';
-import { Charity } from '@/app/charity/charity_type';
+import { MapPin, Mail, Phone, CheckCircle, ExternalLink, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import { useGetCharitiesQuery } from '@/lib/reudx/fetchers/charity/charityApi';
 
 function CharitySection() {
-  
+  const { t } = useTranslation();
+  const { data, isLoading } = useGetCharitiesQuery({ page: 1, limit: 3 });
+  const charities = data?.data || [];
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -14,16 +18,23 @@ function CharitySection() {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              Making a Difference Together
+              {t('charity.sectionTitle')}
             </h1>
             <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-              Discover and support verified charities working tirelessly to create positive change in communities worldwide.
+              {t('charity.sectionSubtitle')}
             </p>
           </div>
 
           {/* Charities Grid */}
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            </div>
+          ) : charities.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">No charities yet.</p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {demoCharities?.slice(0,3).map((charity: Charity) => (
+            {charities.map((charity: any) => (
               <div
                 key={charity.id}
                 className="group relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
@@ -41,7 +52,7 @@ function CharitySection() {
                   {charity.verified && (
                     <div className="absolute top-4 right-4 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg">
                       <CheckCircle className="w-3 h-3" />
-                      Verified
+                      {t('common.verified')}
                     </div>
                   )}
                   
@@ -68,15 +79,17 @@ function CharitySection() {
 
                   {/* Mission Statement */}
                   {charity.mission && (
-                    <p className="text-sm text-emerald-700 font-medium mb-3 italic">
-                      "{charity.mission}"
-                    </p>
+                    <div
+                      className="text-sm text-emerald-700 font-medium mb-3 italic line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: `"${charity.mission}"` }}
+                    />
                   )}
 
                   {/* Description */}
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
-                    {charity.description}
-                  </p>
+                  <div
+                    className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: charity.description || "" }}
+                  />
 
                   {/* Contact Information (Compact) */}
                   <div className="space-y-2 mb-4 text-xs text-gray-500">
@@ -111,11 +124,11 @@ function CharitySection() {
                       href={`/charity/${charity.id}`}
                       className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white  rounded-lg transition-colors flex-1"
                     >
-                      Learn More
+                      {t('common.learnMore')}
                       <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                     </Link>
                     </Button>
-                    
+
                     {charity.website && (
                       <a
                         href={charity.website}
@@ -123,7 +136,7 @@ function CharitySection() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                       >
-                        Visit
+                        {t('common.visit')}
                       </a>
                     )}
                   </div>
@@ -134,15 +147,16 @@ function CharitySection() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Call to Action Section */}
           <div className="mt-16 text-center">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8 max-w-3xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Want to make a difference?</h3>
-              <p className="text-gray-600 mb-4">Every contribution, big or small, helps us create lasting change.</p>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">{t('charity.ctaTitle')}</h3>
+              <p className="text-gray-600 mb-4">{t('charity.ctaSubtitle')}</p>
               <Link href="/charity">
               <Button className=" text-white px-8">
-                Get All Charity
+                {t('charity.ctaButton')}
               </Button>
               </Link>
             </div>

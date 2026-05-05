@@ -1,10 +1,12 @@
 export const tagTypes = {
   user: "user",
-  campaign:"Campaign",
-  itemDonation:"itemDonation",
-  donation:"donation",
-  payment:"payment",
-  banner:"banner"
+  campaign: "Campaign",
+  itemDonation: "itemDonation",
+  donation: "donation",
+  payment: "payment",
+  banner: "banner",
+  charity: "charity",
+  charityInquiry: "charityInquiry",
 };
 
 export const tagTypesList = [
@@ -13,5 +15,7 @@ export const tagTypesList = [
   tagTypes.itemDonation,
   tagTypes.donation,
   tagTypes.payment,
-  tagTypes.banner
+  tagTypes.banner,
+  tagTypes.charity,
+  tagTypes.charityInquiry,
 ];

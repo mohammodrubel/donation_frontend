@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -18,9 +18,11 @@ import {
 } from '@/components/ui/dialog';
 import { useDeleteItemDonationMutation, useGetMyDonationsQuery } from '@/lib/reudx/fetchers/itemDonation.tsx/itemDonationApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Package, ImageIcon, X, Trash2, RefreshCw } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Package, ImageIcon, X, Trash2, RefreshCw, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { PaginationBar } from '@/components/share/PaginationBar';
 import {
   Tooltip,
   TooltipContent,
@@ -29,8 +31,22 @@ import {
 } from '@/components/ui/tooltip';
 
 export default function MyDonationsPage() {
-  const { data, isLoading, refetch } = useGetMyDonationsQuery(undefined);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const { data, isLoading, refetch } = useGetMyDonationsQuery({ page, limit, search });
   const donations = data?.data || [];
+  const meta = data?.meta;
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteMyDonations] = useDeleteItemDonationMutation(undefined)
   const [selectedPhotos, setSelectedPhotos] = useState<string[] | null>(null);
@@ -79,39 +95,51 @@ export default function MyDonationsPage() {
     return config[status] || { label: status, className: 'bg-gray-100 text-gray-700' };
   };
 
-  if (isLoading) return <TableSkeleton />;
-
-  if (!donations.length) {
-    return (
-      <div className="border rounded-2xl bg-white p-12 text-center">
-        <div className="flex flex-col items-center gap-3">
-          <Package className="w-12 h-12 text-gray-300" />
-          <h3 className="text-lg font-semibold text-gray-900">You haven't donated any items yet</h3>
-          <p className="text-sm text-gray-500">Your donations will appear here once you contribute.</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <TooltipProvider>
       <div className="border rounded-2xl bg-white shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50/50">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between px-6 py-4 border-b bg-gray-50/50 gap-3">
           <div className="flex items-center gap-2">
             <Package className="w-5 h-5 text-primary" />
             <h2 className="font-semibold text-gray-900">My Item Donations</h2>
-            <Badge variant="secondary" className="ml-2">{donations.length} total</Badge>
+            {meta && <Badge variant="secondary" className="ml-2">{meta.total} total</Badge>}
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8">
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Refresh list</TooltipContent>
-          </Tooltip>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search my donations…"
+                className="pl-8 w-full sm:w-64"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => refetch()} className="h-8 w-8">
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh list</TooltipContent>
+            </Tooltip>
+          </div>
         </div>
+
+        {isLoading ? (
+          <TableSkeleton />
+        ) : !donations.length ? (
+          <div className="p-12 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <Package className="w-12 h-12 text-gray-300" />
+              <h3 className="text-lg font-semibold text-gray-900">No donations</h3>
+              <p className="text-sm text-gray-500">
+                {search ? `No matches for "${search}".` : "Your donations will appear here once you contribute."}
+              </p>
+            </div>
+          </div>
+        ) : (
+        <>
 
         {/* Table */}
         <div className="overflow-x-auto">
@@ -232,6 +260,20 @@ export default function MyDonationsPage() {
             </TableBody>
           </Table>
         </div>
+        </>
+        )}
+
+        {meta && (
+          <div className="px-6 pb-4">
+            <PaginationBar
+              page={meta.page}
+              totalPages={meta.totalPages}
+              total={meta.total}
+              limit={meta.limit}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
       </div>
 
       {/* Photo Gallery Modal */}

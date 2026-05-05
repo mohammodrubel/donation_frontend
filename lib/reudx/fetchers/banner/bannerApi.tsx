@@ -1,6 +1,22 @@
 import { baseApi } from "../../api/baseApi";
 import { tagTypes } from "../../Tagtypes";
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+const buildQuery = (params?: PaginationParams) => {
+  if (!params) return "";
+  const sp = new URLSearchParams();
+  if (params.page) sp.set("page", String(params.page));
+  if (params.limit) sp.set("limit", String(params.limit));
+  if (params.search) sp.set("search", params.search);
+  const q = sp.toString();
+  return q ? `?${q}` : "";
+};
+
 export const bannerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
@@ -14,10 +30,10 @@ export const bannerApi = baseApi.injectEndpoints({
       invalidatesTags: [tagTypes.banner],
     }),
 
-    // GET ALL BANNERS
-    getBanners: builder.query({
-      query: () => ({
-        url: "/banner/all",
+    // GET ALL BANNERS (with optional pagination + search)
+    getBanners: builder.query<any, PaginationParams | Record<string, never>>({
+      query: (params) => ({
+        url: `/banner/all${buildQuery(params)}`,
         method: "GET",
       }),
       providesTags: [tagTypes.banner],
@@ -37,7 +53,7 @@ export const bannerApi = baseApi.injectEndpoints({
       query: ({ id, data }) => ({
         url: `/banner/${id}`,
         method: "PATCH",
-        body: data, // FormData or JSON
+        body: data,
       }),
       invalidatesTags: [tagTypes.banner],
     }),
