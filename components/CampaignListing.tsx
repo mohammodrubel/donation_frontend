@@ -11,11 +11,20 @@ import { PaginationBar } from './share/PaginationBar'
 import { Campaign } from '@/lib/types'
 
 
+const SORT_OPTIONS: { label: string; value: string }[] = [
+  { label: 'Recent', value: 'recent' },
+  { label: 'Trending', value: 'trending' },
+  { label: 'Urgent', value: 'urgent' },
+  { label: 'Ending Soon', value: 'ending-soon' },
+]
+
 export function CampaignListing() {
   const [page, setPage] = useState(1)
   const [limit] = useState(9)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('')
+  const [sortBy, setSortBy] = useState('recent')
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -25,7 +34,7 @@ export function CampaignListing() {
     return () => clearTimeout(t)
   }, [searchInput])
 
-  const { data, isLoading } = useGetCampaignsQuery({ page, limit, search })
+  const { data, isLoading } = useGetCampaignsQuery({ page, limit, search, category, sortBy })
   const campaigns: Campaign[] = data?.data || []
   const meta = data?.meta
 
@@ -66,13 +75,27 @@ export function CampaignListing() {
                 <Filter className="w-3.5 h-3.5" /> Category
               </h3>
               <div className="flex flex-wrap gap-2">
-                <button className="px-3 py-1.5 text-sm rounded-full bg-black text-white shadow-sm transition hover:bg-gray-800">
+                <button
+                  type="button"
+                  onClick={() => { setCategory(''); setPage(1) }}
+                  className={`px-3 py-1.5 text-sm rounded-full transition ${
+                    category === ''
+                      ? 'bg-black text-white shadow-sm hover:bg-gray-800'
+                      : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
                   All
                 </button>
                 {campaignCategories.slice(0, 5).map((c) => (
                   <button
                     key={c.id}
-                    className="px-3 py-1.5 text-sm rounded-full bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition"
+                    type="button"
+                    onClick={() => { setCategory(c.id); setPage(1) }}
+                    className={`px-3 py-1.5 text-sm rounded-full transition ${
+                      category === c.id
+                        ? 'bg-black text-white shadow-sm hover:bg-gray-800'
+                        : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                    }`}
                   >
                     {c.name}
                   </button>
@@ -85,12 +108,18 @@ export function CampaignListing() {
                 <Clock className="w-3.5 h-3.5" /> Sort by
               </h3>
               <div className="flex gap-2">
-                {['Recent', 'Trending', 'Urgent', 'Ending Soon'].map((sort) => (
+                {SORT_OPTIONS.map((sort) => (
                   <button
-                    key={sort}
-                    className="px-3 py-1.5 text-sm rounded-full bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100 transition"
+                    key={sort.value}
+                    type="button"
+                    onClick={() => { setSortBy(sort.value); setPage(1) }}
+                    className={`px-3 py-1.5 text-sm rounded-full transition ${
+                      sortBy === sort.value
+                        ? 'bg-black text-white shadow-sm hover:bg-gray-800'
+                        : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
+                    }`}
                   >
-                    {sort}
+                    {sort.label}
                   </button>
                 ))}
               </div>

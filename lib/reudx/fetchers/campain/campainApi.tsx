@@ -5,6 +5,8 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   search?: string;
+  category?: string;
+  sortBy?: string;
 }
 
 const buildQuery = (params?: PaginationParams) => {
@@ -13,6 +15,8 @@ const buildQuery = (params?: PaginationParams) => {
   if (params.page) sp.set("page", String(params.page));
   if (params.limit) sp.set("limit", String(params.limit));
   if (params.search) sp.set("search", params.search);
+  if (params.category) sp.set("category", params.category);
+  if (params.sortBy) sp.set("sortBy", params.sortBy);
   const q = sp.toString();
   return q ? `?${q}` : "";
 };
