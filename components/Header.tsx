@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useDispatch, useSelector } from 'react-redux'
+import type { RootState } from '@/lib/reudx/store'
 import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
 import { useTranslation } from '@/lib/i18n/useTranslation'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -13,7 +14,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [animateHeader, setAnimateHeader] = useState(false)
   const dispatch = useDispatch()
-  const user = useSelector((state)=> state?.auth?.user)
+  const user = useSelector((state: RootState) => state?.auth?.user)
   const { t } = useTranslation()
 
   const handleLogout = ()=>{

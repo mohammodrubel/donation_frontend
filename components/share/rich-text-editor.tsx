@@ -41,20 +41,6 @@ interface RichTextEditorProps {
 
 const BackgroundColor = Extension.create({
   name: "backgroundColor",
-  addAttributes() {
-    return {
-      backgroundColor: {
-        default: null,
-        parseHTML: (element: HTMLElement) => element.style.backgroundColor,
-        renderHTML: (attributes: Record<string, unknown>) => {
-          if (!attributes.backgroundColor) return {};
-          return {
-            style: `background-color: ${attributes.backgroundColor}`,
-          };
-        },
-      },
-    };
-  },
   addGlobalAttributes() {
     return [
       {

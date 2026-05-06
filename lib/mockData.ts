@@ -1,3 +1,11 @@
+export interface DonatableItem {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  unit?: string;
+}
+
 export interface Campaign {
   id: string;
   title: string;

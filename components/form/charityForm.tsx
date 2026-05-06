@@ -36,12 +36,12 @@ const charityFormSchema = z.object({
   active: z.boolean().default(true),
 });
 
-export type CharityFormValues = z.infer<typeof charityFormSchema>;
+export type CharityFormValues = z.input<typeof charityFormSchema>;
 
 export function CharityForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
 
-  const form = useForm<CharityFormValues>({
+  const form = useForm<CharityFormValues, unknown, z.output<typeof charityFormSchema>>({
     resolver: zodResolver(charityFormSchema),
     defaultValues: {
       name: "",
