@@ -5,7 +5,8 @@ import { DEFAULT_LANG } from "@/lib/i18n/config";
 
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:9000/api",
+  // baseUrl: "http://localhost:9000/api",
+  baseUrl: "https://donation-backend-j09t.onrender.com/api",
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
     const token = state.auth?.token;
