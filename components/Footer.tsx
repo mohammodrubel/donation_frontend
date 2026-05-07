@@ -75,23 +75,23 @@ export function Footer() {
                   </Link>
                 </li>
 
-                <li>
+                {/* <li>
                   <Link
                     href="/donate-money"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
                     {t('nav.donateMoney')}
                   </Link>
-                </li>
+                </li> */}
 
-                <li>
+                {/* <li>
                   <Link
                     href="/donate-items"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
                     {t('nav.donateItems')}
                   </Link>
-                </li>
+                </li> */}
 
                 <li>
                   <Link
@@ -136,14 +136,14 @@ export function Footer() {
                   </Link>
                 </li>
 
-                <li>
+                {/* <li>
                   <Link
                     href="#"
                     className="text-white/70 hover:text-primary transition-colors"
                   >
                     {t('nav.blog')}
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </div>
 
@@ -227,7 +227,7 @@ export function Footer() {
               <a
                 href="#"
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-primary"
-                aria-label="Website"
+                aria-label={t('footer.socialWebsite')}
               >
                 <Globe className="w-5 h-5" />
               </a>
@@ -235,7 +235,7 @@ export function Footer() {
               <a
                 href="#"
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-primary"
-                aria-label="Community"
+                aria-label={t('footer.socialCommunity')}
               >
                 <MessageCircle className="w-5 h-5" />
               </a>
@@ -243,7 +243,7 @@ export function Footer() {
               <a
                 href="#"
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/70 hover:text-primary"
-                aria-label="Gallery"
+                aria-label={t('footer.socialGallery')}
               >
                 <Camera className="w-5 h-5" />
               </a>

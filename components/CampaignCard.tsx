@@ -115,7 +115,7 @@ console.log(campaign)
 
         {/* Progress Section */}
         <div className="mt-4">
-          <div className="flex justify-between text-sm mb-1">
+          {/* <div className="flex justify-between text-sm mb-1">
             <span className="font-medium text-gray-700">Raised</span>
             <span className="font-semibold text-primary">
               ${campaign.collectedAmount.toLocaleString()} 
@@ -127,7 +127,7 @@ console.log(campaign)
               className="bg-gradient-to-r from-primary to-primary/70 h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(progress, 100)}%` }}
             />
-          </div>
+          </div> */}
           <div className="mt-2 text-right">
             <span className="text-xs font-medium text-gray-500">Contributor {campaign?.contributor}</span>
           </div>

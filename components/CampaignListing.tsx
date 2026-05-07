@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Search, Filter, Clock } from 'lucide-react'
 import { useGetCampaignsQuery } from '@/lib/reudx/fetchers/campain/campainApi'
@@ -9,16 +9,10 @@ import { CampaignCard } from './CampaignCard'
 import { CampaignSkeleton } from './CampaignSkeleton'
 import { PaginationBar } from './share/PaginationBar'
 import { Campaign } from '@/lib/types'
-
-
-const SORT_OPTIONS: { label: string; value: string }[] = [
-  { label: 'Recent', value: 'recent' },
-  { label: 'Trending', value: 'trending' },
-  { label: 'Urgent', value: 'urgent' },
-  { label: 'Ending Soon', value: 'ending-soon' },
-]
+import { useTranslation } from '@/lib/i18n/useTranslation'
 
 export function CampaignListing() {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [limit] = useState(9)
   const [searchInput, setSearchInput] = useState('')
@@ -26,12 +20,22 @@ export function CampaignListing() {
   const [category, setCategory] = useState('')
   const [sortBy, setSortBy] = useState('recent')
 
+  const sortOptions = useMemo(
+    () => [
+      { label: t('campaignsPage.sortRecent'), value: 'recent' },
+      { label: t('campaignsPage.sortTrending'), value: 'trending' },
+      { label: t('campaignsPage.sortUrgent'), value: 'urgent' },
+      { label: t('campaignsPage.sortEndingSoon'), value: 'ending-soon' },
+    ],
+    [t]
+  )
+
   useEffect(() => {
-    const t = setTimeout(() => {
+    const id = setTimeout(() => {
       setSearch(searchInput)
       setPage(1)
     }, 300)
-    return () => clearTimeout(t)
+    return () => clearTimeout(id)
   }, [searchInput])
 
   const { data, isLoading } = useGetCampaignsQuery({ page, limit, search, category, sortBy })
@@ -40,39 +44,34 @@ export function CampaignListing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* HERO SECTION */}
       <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-secondary/10 py-16 border-b border-primary/10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:40px_40px]" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="max-w-2xl">
             <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              Discover Campaigns
+              {t('campaignsPage.heroTitle')}
             </h1>
-            <p className="text-gray-600 mt-3 text-lg">
-              Join movements that create real impact — support causes you care about.
-            </p>
+            <p className="text-gray-600 mt-3 text-lg">{t('campaignsPage.heroSubtitle')}</p>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-10">
-        {/* SEARCH BAR (live) */}
         <div className="relative max-w-md mb-8">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search campaigns..."
+            placeholder={t('campaignsPage.searchPlaceholder')}
             className="pl-10 rounded-full bg-white shadow-sm border-gray-200 focus:ring-primary/20"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
 
-        {/* Visual filter section (still static for now) */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-10">
           <div className="flex flex-wrap items-center gap-8">
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5" /> Category
+                <Filter className="w-3.5 h-3.5" /> {t('campaignsPage.filterCategoryLabel')}
               </h3>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -84,7 +83,7 @@ export function CampaignListing() {
                       : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                   }`}
                 >
-                  All
+                  {t('campaignsPage.all')}
                 </button>
                 {campaignCategories.slice(0, 5).map((c) => (
                   <button
@@ -105,10 +104,10 @@ export function CampaignListing() {
 
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" /> Sort by
+                <Clock className="w-3.5 h-3.5" /> {t('campaignsPage.filterSortLabel')}
               </h3>
               <div className="flex gap-2">
-                {SORT_OPTIONS.map((sort) => (
+                {sortOptions.map((sort) => (
                   <button
                     key={sort.value}
                     type="button"
@@ -127,13 +126,12 @@ export function CampaignListing() {
           </div>
         </div>
 
-        {/* CAMPAIGNS GRID */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
           {isLoading
             ? Array.from({ length: limit }).map((_, i) => <CampaignSkeleton key={i} />)
             : campaigns.map((campaign) => {
                 const categoryObj = campaignCategories.find(c => c.id === campaign.category)
-                const categoryLabel = categoryObj?.name || campaign.category || 'Other'
+                const categoryLabel = categoryObj?.name || campaign.category || t('campaignsPage.categoryOther')
                 return <CampaignCard key={campaign.id} campaign={campaign} categoryLabel={categoryLabel} />
               })}
         </div>
@@ -143,9 +141,9 @@ export function CampaignListing() {
             <div className="bg-gray-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-700">No campaigns found</h3>
+            <h3 className="text-xl font-semibold text-gray-700">{t('campaignsPage.emptyTitle')}</h3>
             <p className="text-gray-500 mt-2">
-              {search ? `No matches for "${search}".` : 'Check back later for new opportunities to make an impact.'}
+              {search ? t('campaignsPage.emptyMatch', { query: search }) : t('campaignsPage.emptyDefault')}
             </p>
           </div>
         )}

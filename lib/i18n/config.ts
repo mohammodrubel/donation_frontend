@@ -8,7 +8,7 @@ export const LANG_LABELS: Record<
   Lang,
   { name: string; native: string; flag: string; flagCode: string }
 > = {
-  en: { name: "English", native: "English", flag: "🇬🇧", flagCode: "gb" },
+  en: { name: "English", native: "English", flag: "🇺🇸", flagCode: "us" },
   az: { name: "Azerbaijani", native: "Azərbaycan", flag: "🇦🇿", flagCode: "az" },
 };
 

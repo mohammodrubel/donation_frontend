@@ -1,64 +1,71 @@
-export const metadata = {
-  title: 'Terms of Service - DonateBridge',
-  description: 'Read the terms of service for using DonateBridge platform.',
-}
+'use client'
+
+import { Footer } from "@/components/Footer"
+import { Header } from "@/components/Header"
+import { useTranslation } from "@/lib/i18n/useTranslation"
 
 export default function TermsPage() {
+  const { t, tArr } = useTranslation()
+  const s2Items = tArr<string>('terms.s2Items')
+
   return (
-    <main className="bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <h1 className="text-4xl font-bold text-foreground mb-8">Terms of Service</h1>
-        
-        <div className="prose prose-sm max-w-none space-y-8 text-foreground/70">
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">1. Acceptance of Terms</h2>
-            <p>By accessing and using DonateBridge, you accept and agree to be bound by the terms and provision of this agreement.</p>
-          </section>
+    <>
+      <Header />
+      <main className="bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <h1 className="text-4xl font-bold text-foreground mb-8">{t('terms.title')}</h1>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">2. Use License</h2>
-            <p>Permission is granted to temporarily download one copy of the materials (information or software) on DonateBridge for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
-            <ul className="list-disc list-inside space-y-2 mt-4">
-              <li>Modify or copy the materials</li>
-              <li>Use the materials for any commercial purpose or for any public display</li>
-              <li>Attempt to decompile or reverse engineer any software contained on DonateBridge</li>
-              <li>Transfer the materials to another person or &quot;mirror&quot; the materials on any other server</li>
-            </ul>
-          </section>
+          <div className="prose prose-sm max-w-none space-y-8 text-foreground/70">
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s1Title')}</h2>
+              <p>{t('terms.s1Body')}</p>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">3. Disclaimer</h2>
-            <p>The materials on DonateBridge are provided on an &apos;as is&apos; basis. DonateBridge makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s2Title')}</h2>
+              <p>{t('terms.s2Body')}</p>
+              <ul className="list-disc list-inside space-y-2 mt-4">
+                {s2Items.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">4. Limitations</h2>
-            <p>In no event shall DonateBridge or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on DonateBridge.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s3Title')}</h2>
+              <p>{t('terms.s3Body')}</p>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">5. Accuracy of Materials</h2>
-            <p>The materials appearing on DonateBridge could include technical, typographical, or photographic errors. DonateBridge does not warrant that any of the materials on its website are accurate, complete, or current. DonateBridge may make changes to the materials contained on its website at any time without notice.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s4Title')}</h2>
+              <p>{t('terms.s4Body')}</p>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">6. Links</h2>
-            <p>DonateBridge has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by DonateBridge of the site. Use of any such linked website is at the user&apos;s own risk.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s5Title')}</h2>
+              <p>{t('terms.s5Body')}</p>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">7. Modifications</h2>
-            <p>DonateBridge may revise these terms of service for its website at any time without notice. By using this website, you are agreeing to be bound by the then current version of these terms of service.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s6Title')}</h2>
+              <p>{t('terms.s6Body')}</p>
+            </section>
 
-          <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">8. Governing Law</h2>
-            <p>These terms and conditions are governed by and construed in accordance with the laws of Bangladesh, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s7Title')}</h2>
+              <p>{t('terms.s7Body')}</p>
+            </section>
 
-          <p className="text-sm text-foreground/50 pt-8">Last updated: January 2025</p>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">{t('terms.s8Title')}</h2>
+              <p>{t('terms.s8Body')}</p>
+            </section>
+
+            <p className="text-sm text-foreground/50 pt-8">{t('terms.lastUpdated')}</p>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+      <Footer />
+    </>
   )
 }
