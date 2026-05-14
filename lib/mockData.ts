@@ -125,7 +125,7 @@ export const campaigns: Campaign[] = [
     id: '1',
     title: 'Emergency Medical Fund for Rohit',
     description: 'Help save a child battling acute leukemia',
-    story: 'Rohit is a 7-year-old boy diagnosed with acute leukemia. His parents are struggling with the treatment costs of ৳50,00,000. Your donation can save his life.',
+    story: 'Rohit is a 7-year-old boy diagnosed with acute leukemia. His parents are struggling with the treatment costs of 50,00,000. Your donation can save his life.',
     category: 'medical',
     goalAmount: 5000000,
     collectedAmount: 3245670,
@@ -139,7 +139,7 @@ export const campaigns: Campaign[] = [
     tags: ['urgent', 'medical', 'child'],
     updates: [
       { date: '2024-03-20', message: 'Rohit completed first round of chemotherapy. Doctors are hopeful.' },
-      { date: '2024-02-28', message: 'Raised ৳30 lakhs! Treatment has begun.' },
+      { date: '2024-02-28', message: 'Raised 30 lakhs! Treatment has begun.' },
     ],
     recentDonors: [
       { name: 'Anonymous', amount: 50000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1' },
@@ -170,7 +170,7 @@ export const campaigns: Campaign[] = [
     tags: ['education', 'community', 'children'],
     updates: [
       { date: '2024-03-15', message: 'Construction of first classroom began!' },
-      { date: '2024-03-01', message: 'Crossed ৳8 lakhs milestone!' },
+      { date: '2024-03-01', message: 'Crossed 8 lakhs milestone!' },
     ],
     recentDonors: [
       { name: 'Raina Dutta', amount: 75000, date: '2024-03-25', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=5' },
@@ -321,7 +321,7 @@ export const campaignCategories = [
 
 // Stats for homepage
 export const stats = [
-  { label: 'Total Donations', value: '৳50+ Crore' },
+  { label: 'Total Donations', value: '50+ Crore' },
   { label: 'Active Campaigns', value: '124' },
   { label: 'Donors Community', value: '45,000+' },
   { label: 'Lives Impacted', value: '250,000+' },
@@ -373,7 +373,7 @@ export const faqs = [
   },
   {
     question: 'Do I get a tax receipt?',
-    answer: 'Yes, all donations ৳2000+ qualify for tax deduction. Receipts are issued automatically.',
+    answer: 'Yes, all donations 2000+ qualify for tax deduction. Receipts are issued automatically.',
   },
 ];
 

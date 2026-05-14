@@ -53,9 +53,9 @@ function formatDate(dateString?: string) {
 
 function formatAmount(amount: number) {
   if (amount >= 1000) {
-    return `$${(amount / 1000).toFixed(1)}K`;
+    return `${(amount / 1000).toFixed(1)}K`;
   }
-  return `$${amount}`;
+  return `${amount}`;
 }
 
 function getDaysLeft(endDate?: string) {
@@ -522,10 +522,10 @@ export function CampaignDetails({ id }: CampaignDetailsProps) {
                     <div>
                       <p className="text-sm text-gray-500">Collected</p>
                       <h3 className="text-4xl font-bold text-primary">
-                        ${(campaign.collectedAmount / 1000).toFixed(1)}K
+                        {(campaign.collectedAmount / 1000).toFixed(1)}K
                       </h3>
                       <p className="text-sm text-gray-500">
-                        of ${(campaign.goalAmount / 1000).toFixed(1)}K goal
+                        of {(campaign.goalAmount / 1000).toFixed(1)}K goal
                       </p>
                     </div>
                     <div>

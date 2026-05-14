@@ -96,7 +96,7 @@ function Page() {
                   </TableCell>
                   <TableCell>{item.donorName}</TableCell>
                   <TableCell>{item.donorEmail}</TableCell>
-                  <TableCell>${item.amount}</TableCell>
+                  <TableCell>{item.amount}</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded text-xs ${

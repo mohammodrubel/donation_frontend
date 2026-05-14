@@ -78,8 +78,8 @@ export default function Page() {
               <TableRow key={item.id}>
                 <TableCell>{(page - 1) * limit + index + 1}</TableCell>
                 <TableCell>{item?.campaign?.title}</TableCell>
-                <TableCell>৳ {item.amount}</TableCell>
-                <TableCell>৳ {item?.payment?.amount}</TableCell>
+                <TableCell>{item.amount}</TableCell>
+                <TableCell>{item?.payment?.amount}</TableCell>
                 <TableCell>{item.status}</TableCell>
                 <TableCell>
                   {new Date(item.createdAt).toLocaleDateString()}

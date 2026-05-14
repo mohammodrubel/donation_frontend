@@ -42,7 +42,7 @@ export function StepConfirm({
       <div className="space-y-4">
         <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-border/50">
           <p className="text-sm text-foreground/60 mb-2">Donation Amount</p>
-          <p className="text-4xl font-bold text-primary">৳{finalAmount.toLocaleString()}</p>
+          <p className="text-4xl font-bold text-primary">{finalAmount.toLocaleString()}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

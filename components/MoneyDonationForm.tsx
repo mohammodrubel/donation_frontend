@@ -183,7 +183,7 @@ export function MoneyDonationForm() {
                       : 'border-border hover:border-primary/50 text-foreground'
                   }`}
                 >
-                  ৳{(amt / 1000).toFixed(1)}K
+                  {(amt / 1000).toFixed(1)}K
                 </button>
               ))}
             </div>
@@ -191,7 +191,6 @@ export function MoneyDonationForm() {
             <div className="space-y-2">
               <label className="block text-foreground font-semibold">Or enter a custom amount</label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/60 font-semibold">৳</span>
                 <input
                   type="number"
                   value={customAmount}
@@ -200,7 +199,7 @@ export function MoneyDonationForm() {
                     setAmount('')
                   }}
                   placeholder="Enter amount"
-                  className="w-full pl-8 pr-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground font-semibold"
+                  className="w-full px-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground font-semibold"
                 />
               </div>
             </div>
@@ -208,7 +207,7 @@ export function MoneyDonationForm() {
             {finalAmount > 0 && (
               <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-center">
                 <p className="text-sm text-foreground/60 mb-1">You are about to donate</p>
-                <p className="text-3xl font-bold text-primary">৳{finalAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-primary">{finalAmount.toLocaleString()}</p>
               </div>
             )}
 
@@ -278,7 +277,7 @@ export function MoneyDonationForm() {
             <div className="space-y-4">
               <div className="p-6 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-border/50">
                 <p className="text-sm text-foreground/60 mb-2">Donation Amount</p>
-                <p className="text-4xl font-bold text-primary">৳{finalAmount.toLocaleString()}</p>
+                <p className="text-4xl font-bold text-primary">{finalAmount.toLocaleString()}</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

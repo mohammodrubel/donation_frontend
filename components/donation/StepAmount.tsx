@@ -53,7 +53,7 @@ export function StepAmount({
                 : 'border-border hover:border-primary/50 text-foreground'
             }`}
           >
-            ৳{(amt / 1000).toFixed(1)}K
+            {(amt / 1000).toFixed(1)}K
           </button>
         ))}
       </div>
@@ -61,13 +61,12 @@ export function StepAmount({
       <div className="space-y-2">
         <label className="block text-foreground font-semibold">Or enter a custom amount</label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/60 font-semibold">৳</span>
           <input
             type="number"
             value={customAmount}
             onChange={(e) => onCustomAmountChange(e.target.value)}
             placeholder="Enter amount"
-            className="w-full pl-8 pr-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground font-semibold"
+            className="w-full px-4 py-4 border-2 border-border rounded-xl focus:border-primary focus:outline-none text-foreground font-semibold"
           />
         </div>
       </div>
@@ -75,7 +74,7 @@ export function StepAmount({
       {finalAmount > 0 && (
         <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 text-center">
           <p className="text-sm text-foreground/60 mb-1">You are about to donate</p>
-          <p className="text-3xl font-bold text-primary">৳{finalAmount.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-primary">{finalAmount.toLocaleString()}</p>
         </div>
       )}
 

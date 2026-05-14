@@ -68,12 +68,12 @@ export const en = {
     startFundraising: "Start Fundraising",
     statCampaigns: "500+ Campaigns",
     statDonors: "10k+ Donors",
-    statRaised: "৳50L+ Raised",
+    statRaised: "50L+ Raised",
     imageAlt: "Helping community",
   },
   stats: {
     items: [
-      { label: "Total Donations", value: "৳50+ Crore" },
+      { label: "Total Donations", value: "50+ Crore" },
       { label: "Active Campaigns", value: "124" },
       { label: "Donors Community", value: "45,000+" },
       { label: "Lives Impacted", value: "250,000+" },
@@ -280,14 +280,14 @@ export const en = {
     successTitle: "Success Stories",
     successItems: [
       {
-        value: "৳50L+",
-        description: "Medical Emergency Campaign raised over ৳50 lakhs in 3 months",
+        value: "50L+",
+        description: "Medical Emergency Campaign raised over 50 lakhs in 3 months",
         note: "Success Rate: 98%",
       },
       {
         value: "10K+",
         description: "Education Campaign connected with 10,000+ supporters",
-        note: "Avg. Donation: ৳5,000",
+        note: "Avg. Donation: 5,000",
       },
       {
         value: "48hrs",

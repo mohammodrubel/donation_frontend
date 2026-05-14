@@ -8,7 +8,7 @@ export default function AdminOverview() {
   const stats = [
     {
       label: 'Total Revenue',
-      value: '$45,230',
+      value: '45,230',
       change: '+12.5%',
       icon: DollarSign,
       color: 'primary',
@@ -67,7 +67,7 @@ export default function AdminOverview() {
     {
       id: 1,
       user: 'John Doe',
-      amount: '$500',
+      amount: '500',
       campaign: 'Medical Emergency Fund',
       date: '2024-04-15',
       status: 'Completed',
@@ -75,7 +75,7 @@ export default function AdminOverview() {
     {
       id: 2,
       user: 'Jane Smith',
-      amount: '$250',
+      amount: '250',
       campaign: 'Education Support',
       date: '2024-04-15',
       status: 'Completed',
@@ -83,7 +83,7 @@ export default function AdminOverview() {
     {
       id: 3,
       user: 'Ali Hassan',
-      amount: '$1000',
+      amount: '1000',
       campaign: 'Disaster Relief',
       date: '2024-04-14',
       status: 'Pending Verification',

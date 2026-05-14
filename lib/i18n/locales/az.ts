@@ -70,12 +70,12 @@ export const az: Dictionary = {
     startFundraising: "Vəsait yığmağa başla",
     statCampaigns: "500+ Kampaniya",
     statDonors: "10k+ İanəçi",
-    statRaised: "৳50L+ Yığılıb",
+    statRaised: "50L+ Yığılıb",
     imageAlt: "İcmaya kömək",
   },
   stats: {
     items: [
-      { label: "Ümumi ianələr", value: "৳50+ Crore" },
+      { label: "Ümumi ianələr", value: "50+ Crore" },
       { label: "Aktiv kampaniyalar", value: "124" },
       { label: "İanəçi icması", value: "45,000+" },
       { label: "Təsirlənmiş həyatlar", value: "250,000+" },
@@ -282,14 +282,14 @@ export const az: Dictionary = {
     successTitle: "Uğur hekayələri",
     successItems: [
       {
-        value: "৳50L+",
-        description: "Tibbi Təcili Yardım Kampaniyası 3 ayda ৳50 lakhsdan çox vəsait topladı",
+        value: "50L+",
+        description: "Tibbi Təcili Yardım Kampaniyası 3 ayda 50 lakhsdan çox vəsait topladı",
         note: "Uğur dərəcəsi: 98%",
       },
       {
         value: "10K+",
         description: "Təhsil Kampaniyası 10,000+ dəstəkçi ilə əlaqə qurdu",
-        note: "Orta ianə: ৳5,000",
+        note: "Orta ianə: 5,000",
       },
       {
         value: "48 saat",

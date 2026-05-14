@@ -239,7 +239,7 @@ export default function Page() {
 
                   <TableCell>{item.title}</TableCell>
 
-                  <TableCell>${item.goalAmount}</TableCell>
+                  <TableCell>{item.goalAmount}</TableCell>
 
                   <TableCell>
                     {item.status === "completed" ? (
