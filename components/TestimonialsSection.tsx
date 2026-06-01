@@ -16,9 +16,9 @@ interface TestimonialsSectionProps {
 }
 
 const fallbackAvatars = [
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=21',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=22',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=23',
+  'https://plus.unsplash.com/premium_photo-1689977927774-401b12d137d6?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bWFuJTIwYXZhdGFyfGVufDB8fDB8fHww',
+  'https://static.vecteezy.com/system/resources/thumbnails/033/129/417/small/a-business-man-stands-against-white-background-with-his-arms-crossed-ai-generative-photo.jpg',
+  'https://img.magnific.com/free-photo/young-attractive-man-classic-suit-straightens-his-tie_171337-9532.jpg?semt=ais_hybrid&w=740&q=80',
 ];
 
 export function TestimonialsSection({ testimonials: testimonialsProp }: TestimonialsSectionProps) {
@@ -48,13 +48,14 @@ export function TestimonialsSection({ testimonials: testimonialsProp }: Testimon
                 &quot;{testimonial.text}&quot;
               </p>
               <div className="flex items-center gap-4">
-                <Image
-                  src={testimonial.avatar ?? fallbackAvatars[index % fallbackAvatars.length]}
-                  alt={testimonial.name}
-                  width={48}
-                  height={48}
-                  className="rounded-full"
-                />
+                <div className="relative w-12 h-12">
+                  <Image
+                    src={testimonial.avatar ?? fallbackAvatars[index % fallbackAvatars.length]}
+                    alt={testimonial.name}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
                   <p className="text-xs text-foreground/60">{testimonial.role}</p>
