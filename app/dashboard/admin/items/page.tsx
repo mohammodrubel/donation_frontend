@@ -175,7 +175,7 @@ export default function ItemDonationTable() {
             <TableHeader>
               <TableRow className="bg-gray-50/80">
                 <TableHead className="font-semibold">Donor</TableHead>
-                <TableHead className="font-semibold">Category</TableHead>
+                <TableHead className="font-semibold">Item</TableHead>
                 <TableHead className="font-semibold">Qty</TableHead>
                 <TableHead className="font-semibold">Photos</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
@@ -222,8 +222,10 @@ export default function ItemDonationTable() {
                       </div>
                     </TableCell>
 
-                    {/* Category */}
-                    <TableCell className="capitalize">{item.category || '—'}</TableCell>
+                    {/* Item */}
+                    <TableCell className="capitalize">
+                      {item.itemName || '—'}
+                    </TableCell>
 
                     {/* Quantity */}
                     <TableCell className="font-mono text-sm">{item.quantity || 1}</TableCell>

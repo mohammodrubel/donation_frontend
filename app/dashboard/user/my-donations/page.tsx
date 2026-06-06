@@ -146,7 +146,7 @@ export default function MyDonationsPage() {
           <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow className="bg-gray-50/80">
-                <TableHead className="font-semibold">Item / Category</TableHead>
+                <TableHead className="font-semibold">Item</TableHead>
                 <TableHead className="font-semibold">Quantity</TableHead>
                 <TableHead className="font-semibold">Photos</TableHead>
                 <TableHead className="font-semibold">Preferred Date & Time</TableHead>
@@ -164,13 +164,12 @@ export default function MyDonationsPage() {
 
                 return (
                   <TableRow key={item.id} className="group hover:bg-gray-50/50 transition-colors">
-                    {/* Item / Category */}
+                    {/* Item */}
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">
-                          {item.itemName || item.category || '—'}
+                          {item.itemName || '—'}
                         </p>
-                        <p className="text-xs text-gray-500 capitalize">{item.category}</p>
                         {item.condition && (
                           <p className="text-xs text-gray-400 mt-0.5">Condition: {item.condition}</p>
                         )}

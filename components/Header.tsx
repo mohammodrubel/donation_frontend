@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,7 @@ import type { RootState } from '@/lib/reudx/store'
 import { logout } from '@/lib/reudx/fetchers/auth/authSlice'
 import { useTranslation } from '@/lib/i18n/useTranslation'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import donorLogo from '@/assets/DONOR.png'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -46,9 +48,12 @@ export function Header() {
         {/* rest of your header content stays exactly the same */}
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="text-3xl  font-extrabold tracking-tight">
-              DONAR
-            </div>
+            <Image
+              src={donorLogo}
+              alt="DONAR"
+              priority
+              className="h-10 w-auto"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

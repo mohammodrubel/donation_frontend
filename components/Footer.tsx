@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Globe,
   MessageCircle,
@@ -9,6 +10,7 @@ import {
   Heart
 } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n/useTranslation'
+import donorLogo from '@/assets/DONOR.png'
 
 export function Footer() {
   const { t } = useTranslation()
@@ -49,11 +51,11 @@ export function Footer() {
             {/* Brand */}
             <div className="md:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-4 group">
-                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center font-bold text-white group-hover:shadow-lg transition-all">
-                  D
-                </div>
-
-                <span className="font-bold text-lg">{t('common.appName')}</span>
+                <Image
+                  src={donorLogo}
+                  alt={t('common.appName')}
+                  className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+                />
               </Link>
 
               <p className="text-sm text-white/60 leading-relaxed">

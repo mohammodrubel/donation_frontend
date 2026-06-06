@@ -2,13 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { itemCategories } from '@/lib/mockData'
 import { Button } from '@/components/ui/button'
 import { Check, ArrowRight, AlertCircle, Upload, Truck } from 'lucide-react'
 
 export function ItemDonationForm() {
   const [step, setStep] = useState(1)
-  const [selectedCategory, setSelectedCategory] = useState('')
   const [itemName, setItemName] = useState('')
   const [quantity, setQuantity] = useState('')
   const [condition, setCondition] = useState('used')
@@ -29,8 +27,8 @@ export function ItemDonationForm() {
   ]
 
   const handleNext = () => {
-    if (step === 1 && !selectedCategory) {
-      alert('Please select a category')
+    if (step === 1 && !itemName.trim()) {
+      alert('Please pick a campaign and select an item from its Items You Can Donate list')
       return
     }
     if (step === 2 && (!itemName || !quantity || !condition)) {
@@ -57,7 +55,6 @@ export function ItemDonationForm() {
 
   const resetForm = () => {
     setStep(1)
-    setSelectedCategory('')
     setItemName('')
     setQuantity('')
     setCondition('used')
@@ -104,7 +101,7 @@ export function ItemDonationForm() {
             ))}
           </div>
           <div className="flex justify-between text-xs sm:text-sm text-foreground/60 font-medium">
-            <span>Category</span>
+            <span>Item</span>
             <span>Item Details</span>
             <span>Pickup</span>
             <span>Contact</span>
@@ -112,33 +109,27 @@ export function ItemDonationForm() {
           </div>
         </div>
 
-        {/* Step 1: Category Selection */}
+        {/* Step 1: Choose Campaign */}
         {step === 1 && (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-border/50 space-y-8">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">What would you like to donate?</h1>
-              <p className="text-lg text-foreground/60">Select the category of items</p>
+              <h1 className="text-4xl font-bold text-foreground mb-2">Donate to a campaign</h1>
+              <p className="text-lg text-foreground/60">
+                Pick a campaign and choose an item from its Items You Can Donate list.
+              </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {itemCategories.map(cat => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`p-6 rounded-xl border-2 transition-all text-center space-y-2 ${
-                    selectedCategory === cat.id
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <span className="text-3xl block">{cat.icon}</span>
-                  <span className="block font-bold text-foreground text-sm">{cat.name}</span>
-                </button>
-              ))}
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-foreground/70">
+                Item donations happen on each campaign page. Browse active campaigns and use the donate form there.
+              </p>
             </div>
 
-            <Button onClick={handleNext} size="lg" className="w-full bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
-              Continue <ArrowRight className="w-4 h-4 ml-2" />
+            <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90 rounded-lg h-12 font-semibold">
+              <Link href="/campaigns">
+                Browse Campaigns <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
             </Button>
           </div>
         )}

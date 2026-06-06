@@ -30,18 +30,18 @@ function ItemDonationForm({
 
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
- 
+
 
   const [formData, setFormData] = useState({
     contactName: user?.name || '',
     contactEmail: user?.email || '',
     contactPhone: '',
-    category: 'other',
+    itemName: '',
     quantity: 1,
     condition: 'new',
     description: '',
     pickupAddress: '',
-    campaignId:campaignId,
+    campaignId: campaignId,
     preferredDate: '',
     preferredTime: '',
   });
@@ -100,10 +100,10 @@ function ItemDonationForm({
       contactName: user?.name || '',
       contactEmail: user?.email || '',
       contactPhone: '',
-      category: 'other',
+      itemName: '',
       quantity: 1,
       condition: 'new',
-      campaignId:campaignId,
+      campaignId: campaignId,
       description: '',
       pickupAddress: '',
       preferredDate: '',
@@ -120,6 +120,11 @@ function ItemDonationForm({
     e.preventDefault();
 
     if (!user) return;
+
+    if (!formData.itemName) {
+      toast.error('Please select an item from the Items You Can Donate list');
+      return;
+    }
 
     try {
       const payload = new FormData();
@@ -200,32 +205,23 @@ function ItemDonationForm({
           />
 
           <select
-            name="category"
-            value={formData.category}
+            name="itemName"
+            value={formData.itemName}
             onChange={handleChange}
             className="w-full border rounded-lg p-3"
+            required
+            disabled={acceptedItems.length === 0}
           >
-            <option value="clothes">
-              Clothes
+            <option value="" disabled>
+              {acceptedItems.length === 0
+                ? 'No items available for this campaign'
+                : 'Select an item to donate'}
             </option>
-            <option value="food">
-              Food
-            </option>
-            <option value="books">
-              Books
-            </option>
-            <option value="furniture">
-              Furniture
-            </option>
-            <option value="medicine">
-              Medicine
-            </option>
-            <option value="electronics">
-              Electronics
-            </option>
-            <option value="other">
-              Other
-            </option>
+            {acceptedItems.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
           </select>
 
           <input
